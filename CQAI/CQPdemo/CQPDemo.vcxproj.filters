@@ -41,6 +41,9 @@
     <ClCompile Include="appmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="com.example.democ.json" />

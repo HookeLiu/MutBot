@@ -5,7 +5,7 @@
 *	所以基本上就是clone过来加了点内容, 也没啥改动. 后端主要是用Python, 消息处理主体依靠神经网络.
 *	(需要注意的是, 酷Q和这个工程用的都是GB2312, 数据库以及后端程序用的都是UTF-8, 
 *	所以这里用了个网上抄来的简易转码函数).
-*	By 佚之狗 2019 Dec.
+*	By 佚之狗 Dec. 2019
 */
 /*
 * CoolQ Demo for VC++ 
@@ -24,6 +24,7 @@
 #include <regex>
 #include <thread>
 #include "timer.hpp"
+#include "lex.cpp"
 
 #pragma comment(lib,"Winmm.lib")
 
@@ -31,7 +32,7 @@ using namespace std;
 
 sqlite3* db;
 char*    zErrMsg = NULL;
-int      rc = -1, GroupCount = 0, Gflag = -1, GtmpCounter = 0;
+int      rc = -1, GroupCount = 0, Gflag = -1, GtmpCounter = 0, DEVflag = -1;
 
 uint64_t toQQ  = -1;
 uint64_t toGp = -1;
@@ -41,6 +42,10 @@ void polling();
 char* U2G(const char* );
 char* G2U(const char* );
 void respTimer();
+void cmdExec(const char* command);
+
+extern CQcmd;
+extern CQcmd mainParse(std::string cmd);
 
 string   APPpath, pBuff;
 
@@ -308,11 +313,16 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 
 	if (fromQQ == AdminQQ) {
 
-
-		if (cmd.find("取好友列表") != string::npos) {
-			char buff[2048];
-			sprintf(buff, "当前的好友: \n %s", CQ_getFriendList(ac, FALSE));
-			CQ_addLog(ac, CQLOG_INFO, "测试", buff);
+		if (cmd.find("命令模式") != string::npos) {
+			if (DEVflag == -1) {
+				CQ_sendPrivateMsg(ac, fromQQ, "已进入命令模式");
+				DEVflag = 233;
+			}
+			if (DEVflag == 233) {
+				CQ_sendPrivateMsg(ac, fromQQ, "已处于命令模式, 发送退出来退出");
+				if (cmd.find("退出") != string::npos)
+					DEVflag = -1;
+			}
 		}
 
 		regex parm1("\\d{6,12}");
@@ -322,8 +332,7 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 		if (cmd.find("单行") < 16 && cmd.find(':') != string::npos) {
 			unsigned int pos;
 			pos = cmd.find(':');
-			
-
+	
 			sprintf_s(buff, 2047,"管理员单行私聊模式:%s长%d字符, 内容→\n%s", cmd.c_str(), cmd.length(), cmd.substr(pos).c_str());
 			CQ_addLog(ac, CQLOG_INFO, "管理操作", buff);
 
@@ -379,6 +388,9 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 				Gflag = -1;
 			}
 		}
+
+		if (DEVflag == 233)
+			cmdExec(msg);
 
 	}
 	else {// 别人私聊的内容都转发到主号并转发主号的应答
@@ -705,43 +717,101 @@ void respTimer() {
 	timer.stop();
 }
 
+/*
+	这里的设计是做一个表, 三大类动作下有
+*/
+
 void cmdExec(const char * command) {
-	string cmd = command;
-	
-	int cmdID = 1, flag = -1;
-	int64_t toPri = -1, toGrp = -1;
-	const char* content = NULL;
+	CQcmd cmd;
+	cmd = mainParse(command);
 
-	// 命令解析待定
-
-	switch (cmdID) {
+	switch (cmd.cmdID)
+	{
+	case 0:
+		if (cmd.toGrp != -1)
+			CQ_sendGroupMsg(ac, cmd.toGrp, cmd.content);
+		else if (cmd.flag != -1)
+			CQ_sendLike(ac, cmd.toPri);
+		else if (cmd.toPri != -1)
+			CQ_sendPrivateMsg(ac, cmd.toPri, cmd.content);
+		break;
+		
 	case 1:
-		if(flag)
-			CQ_sendPrivateMsg(ac, toPri, content);
-		break;
-	case 2:
-		if (flag)
-			CQ_sendGroupMsg(ac, toGrp, content);
-		break;
+		switch (cmd.subCmdID)
+		{
+		case 0: 
+			CQ_deleteMsg(ac, cmd.action);
+			break;
+		case 1:
+			if (cmd.flag == 10)
+				CQ_setGroupKick(ac, cmd.toGrp, cmd.toPri, FALSE);
+			else if (cmd.flag == 233)
+				CQ_setGroupLeave(ac, cmd.toGrp, FALSE);
+			break;
+		case 2:
+			if (cmd.flag)
+				CQ_setGroupWholeBan(ac, cmd.toGrp, cmd.action);
+			else
+				CQ_setGroupBan(ac, cmd.toGrp, cmd.toPri, cmd.action);
+			break;
+		case 3:
+			CQ_setGroupAnonymous(ac, cmd.toGrp, cmd.action);
+			break;
+		case 4:
+			CQ_setGroupCard(ac, cmd.toGrp, cmd.toPri, cmd.content);
+			break;
+		case 5:
+			CQ_setGroupSpecialTitle(ac, cmd.toGrp, cmd.toPri, cmd.content, cmd.action);
+			break;
+		case 6:
+			// 加好友/加群邀请默认同意就先不做了
+			break;
+		case 7:
+			CQ_addLog(ac, cmd.flag, "后台处理", cmd.content);
+			break;
+		default:
+			break;
+		}
+
 	case 3:
-	case 4:
-		break;
-	case 5:
-	case 6:
-	case 7:
-		if (flag > 300)
-			CQ_sendPrivateMsg(ac, AdminQQ, content);
-		CQ_sendGroupMsg(ac, toGrp, content);
-		break;
-	case 8:
-		break;
-	case 9: // "群添加请求处理" 规则待定
-		break;
-	case 10:
-		CQ_sendPrivateMsg(ac, toPri, content);
-		break;
+		switch (cmd.subCmdID)
+		{
+		case 8: 
+			switch (cmd.flag) {
+			case 1:
+				pBuff = CQ_getGroupMemberInfoV2(ac, cmd.toGrp, cmd.toPri, TRUE);
+				break;
+			case 2:
+				pBuff = CQ_getStrangerInfo(ac, cmd.toPri, TRUE);
+				break;
+			case 3:
+				pBuff = to_string(CQ_getLoginQQ(ac));
+				break;
+			case 4:
+				pBuff = CQ_getLoginNick(ac);
+				break;
+			}
+
+		case 9:
+			pBuff = CQ_getRecord(ac, cmd.content, "mp3");
+			break;
+
+		case 10:
+			pBuff = CQ_getGroupMemberList(ac, cmd.toGrp);
+			break;
+
+		case 11:
+			pBuff = CQ_getGroupList(ac);
+			break;
+
+		case 12:
+			pBuff = CQ_getAppDirectory(ac);
+			break;
+				
+		default:
+			break;
+		}
 	default:
-		CQ_addLog(ac, CQLOG_WARNING, "指令处理", "指令编号有误");
 		break;
 	}
 	

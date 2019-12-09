@@ -230,4 +230,4 @@ CQAPI(const char *) CQ_getGroupList(int32_t AuthCode);                         /
 
 // 按理说应该有获取好友列表的API, 不过不知道为啥Coxxs的这个CQP.lib里没有
 // 反正也是打算通过后端来记录和分析人际关系, 这个取好友列表就不管它了
-CQAPI(const char *) CQ_getFriendList(int32_t AuthCode, CQBOOL reserved);
+//CQAPI(const char *) CQ_getFriendList(int32_t AuthCode, CQBOOL reserved);
