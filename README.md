@@ -9,10 +9,9 @@
 ## 目录说明
 
 CQAI ---→ 在酷Q官方Demo [Coxxs的VC demo](https://github.com/CoolQ/cqsdk-vc "CoolQ/cqsdk-vc")基础上做的简单接口  
-|  
 |--notes ---→ 酷Q SDK二次开发笔记以及相关资料  
 
 ## 开发日志
 
-07 Dec. 2019, 数据库主体部分完成, 应答语法设计完成, 正在做Lex.
+07 Dec. 2019, 数据库主体部分完成, 应答语法设计完成, 正在做Lex.  
 10 DEc. 2019, 实现了"cmdExec"命令解析执行的基础demo, 功能慢慢完善吧...
