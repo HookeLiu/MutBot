@@ -30,6 +30,9 @@
     <ClInclude Include="timer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -18,14 +18,6 @@
 #include "cqp.h"
 #include "appmain.h" //应用AppID等信息，请正确填写，否则酷Q可能无法加载
 
-#include <iostream>
-#include <ctime>
-#include "sqlite3.h"
-#include <regex>
-#include <thread>
-#include "timer.hpp"
-#include "lex.cpp"
-
 #pragma comment(lib,"Winmm.lib")
 
 using namespace std;
@@ -43,8 +35,6 @@ char* U2G(const char* );
 char* G2U(const char* );
 void respTimer();
 void cmdExec(const char* command);
-
-extern CQcmd;
 extern CQcmd mainParse(std::string cmd);
 
 string   APPpath, pBuff;
@@ -314,16 +304,22 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 	if (fromQQ == AdminQQ) {
 
 		if (cmd.find("命令模式") != string::npos) {
-			if (DEVflag == -1) {
-				CQ_sendPrivateMsg(ac, fromQQ, "已进入命令模式");
-				DEVflag = 233;
-			}
 			if (DEVflag == 233) {
-				CQ_sendPrivateMsg(ac, fromQQ, "已处于命令模式, 发送退出来退出");
-				if (cmd.find("退出") != string::npos)
+				if (cmd.find("退出") != string::npos) {
 					DEVflag = -1;
+					CQ_sendPrivateMsg(ac, fromQQ, "已退出指令模式");
+				}
+				else
+					CQ_sendPrivateMsg(ac, fromQQ, "已处于命令模式, 发送退出来退出");
+			}
+			if (DEVflag == -1) {
+				DEVflag = 233;
+				CQ_sendPrivateMsg(ac, fromQQ, "已进入命令模式");
 			}
 		}
+
+		if (DEVflag == 233)
+			cmdExec(msg);
 
 		regex parm1("\\d{6,12}");
 		smatch result;
@@ -388,10 +384,6 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 				Gflag = -1;
 			}
 		}
-
-		if (DEVflag == 233)
-			cmdExec(msg);
-
 	}
 	else {// 别人私聊的内容都转发到主号并转发主号的应答
 		// 测试阶段先直接转发
@@ -721,8 +713,10 @@ void respTimer() {
 	这里的设计是做一个表, 三大类动作下有
 */
 
-void cmdExec(const char * command) {
+void cmdExec(const char * strCmd) {
 	CQcmd cmd;
+	string command;
+	command = strCmd;
 	cmd = mainParse(command);
 
 	switch (cmd.cmdID)

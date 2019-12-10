@@ -167,32 +167,20 @@ strType strHighlightType(std::int8_t state, std::string str) {
 	return keywd;
 }
 
-struct CQcmd
-{
-	std::int8_t		cmdID = -1;
-	std::int8_t		subCmdID = -1;
-	std::int8_t		flag = -1;
-	std::int64_t	toPri = -1;
-	std::int64_t	toGrp = -1;
-	std::int32_t    action = -1;
-	const char* content = "";
-};
 
-CQcmd mainParse(std::string cmd) {
+extern CQcmd mainParse(std::string cmd) {
 	strType result_cmd;
 	strType highType;
 	static CQcmd code;
 	int i = 0, len;
-
 	len = cmd.length();
+
 	while (1) {
 		result_cmd = strTypeMatch(cmd);
 		if (result_cmd.state == 0)
 			break;
 		i += result_cmd.subStr.length();
-
 		cmd = cmd.substr(result_cmd.subStr.length(), len - i);
-
 		highType = strHighlightType(result_cmd.state, result_cmd.subStr);
 
 		if (highType.state == 14) {
@@ -214,12 +202,7 @@ CQcmd mainParse(std::string cmd) {
 				break;
 			case 5:
 				code.flag = 100;
-				if (code.cmdID == 1) {
-
-				}
-				if (code.cmdID == 2) {
-
-				}
+				// 暂时先不做那么多了, 以后再慢慢填坑吧...
 
 			default:
 				break;
@@ -234,7 +217,7 @@ CQcmd mainParse(std::string cmd) {
 					code.toGrp = std::stoll(result_cmd.subStr);
 			}
 			else
-				code.action = std::stoll(result_cmd.subStr);
+				code.action = std::stol(result_cmd.subStr);
 		}
 
 		if (highType.state == 13) {
