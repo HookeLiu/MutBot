@@ -18,6 +18,9 @@
 #include "cqp.h"
 #include "appmain.h" //应用AppID等信息，请正确填写，否则酷Q可能无法加载
 
+#define OK  0
+#define Err 1
+
 #pragma comment(lib,"Winmm.lib")
 
 using namespace std;
@@ -34,7 +37,7 @@ void polling();
 char* U2G(const char* );
 char* G2U(const char* );
 void respTimer();
-void cmdExec(const char* command);
+bool cmdExec(const char* command);
 extern CQcmd mainParse(std::string cmd);
 
 string   APPpath, pBuff;
@@ -303,6 +306,16 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 
 	if (fromQQ == AdminQQ) {
 
+		if (DEVflag == 233) {
+			bool isExeced;
+			isExeced = cmdExec(msg);
+			if (isExeced == OK)
+				CQ_sendPrivateMsg(ac, fromQQ, "命令已执行");
+			else
+				CQ_sendPrivateMsg(ac, fromQQ, "命令执行失败");
+			return EVENT_BLOCK;
+		}
+
 		if (cmd.find("命令模式") != string::npos) {
 			if (DEVflag == 233) {
 				if (cmd.find("退出") != string::npos) {
@@ -312,15 +325,12 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 				else
 					CQ_sendPrivateMsg(ac, fromQQ, "已处于命令模式, 发送退出来退出");
 			}
-			if (DEVflag == -1) {
+			if (cmd.find("进入") != string::npos && DEVflag == -1) {
 				DEVflag = 233;
 				CQ_sendPrivateMsg(ac, fromQQ, "已进入命令模式");
 			}
 		}
-
-		if (DEVflag == 233)
-			cmdExec(msg);
-
+			
 		regex parm1("\\d{6,12}");
 		smatch result;
 		char buff[2048];
@@ -698,13 +708,6 @@ void polling() {
 void respTimer() {
 	Timer timer;
 	timer.start(60000, bind(respons, "on_Timer60s"));
-	if (GtmpCounter < 100) {
-		GtmpCounter += 1;
-		if ((GtmpCounter % 5) == 0 && GtmpCounter > 1)
-			CQ_sendPrivateMsg(ac, AdminQQ, "5次定时触发");
-	}
-	else if (GtmpCounter < 200)
-		GtmpCounter = -1;
 	this_thread::sleep_for(chrono::hours(616471607));
 	timer.stop();
 }
@@ -713,21 +716,27 @@ void respTimer() {
 	这里的设计是做一个表, 三大类动作下有
 */
 
-void cmdExec(const char * strCmd) {
+bool cmdExec(const char * strCmd) {
 	CQcmd cmd;
 	string command;
 	command = strCmd;
 	cmd = mainParse(command);
 
+	if (cmd.flag == -1) {
+		CQ_sendPrivateMsg(ac, AdminQQ, "命令语法有误, 无法执行");
+		return Err;
+	}
+		
 	switch (cmd.cmdID)
 	{
 	case 0:
 		if (cmd.toGrp != -1)
 			CQ_sendGroupMsg(ac, cmd.toGrp, cmd.content);
-		else if (cmd.flag != -1)
-			CQ_sendLike(ac, cmd.toPri);
-		else if (cmd.toPri != -1)
+		else if (cmd.toPri != -1) {
 			CQ_sendPrivateMsg(ac, cmd.toPri, cmd.content);
+			if (cmd.flag == 100)
+				CQ_sendLike(ac, cmd.toPri);
+		}
 		break;
 		
 	case 1:
@@ -743,9 +752,9 @@ void cmdExec(const char * strCmd) {
 				CQ_setGroupLeave(ac, cmd.toGrp, FALSE);
 			break;
 		case 2:
-			if (cmd.flag)
+			if (cmd.flag == 22)
 				CQ_setGroupWholeBan(ac, cmd.toGrp, cmd.action);
-			else
+			else if (cmd.flag < 22)
 				CQ_setGroupBan(ac, cmd.toGrp, cmd.toPri, cmd.action);
 			break;
 		case 3:
@@ -761,7 +770,7 @@ void cmdExec(const char * strCmd) {
 			// 加好友/加群邀请默认同意就先不做了
 			break;
 		case 7:
-			CQ_addLog(ac, cmd.flag, "后台处理", cmd.content);
+			CQ_addLog(ac, CQLOG_INFO, "后台处理", cmd.content);
 			break;
 		default:
 			break;
@@ -772,16 +781,16 @@ void cmdExec(const char * strCmd) {
 		{
 		case 8: 
 			switch (cmd.flag) {
-			case 1:
+			case 81:
 				pBuff = CQ_getGroupMemberInfoV2(ac, cmd.toGrp, cmd.toPri, TRUE);
 				break;
-			case 2:
+			case 82:
 				pBuff = CQ_getStrangerInfo(ac, cmd.toPri, TRUE);
 				break;
-			case 3:
+			case 83:
 				pBuff = to_string(CQ_getLoginQQ(ac));
 				break;
-			case 4:
+			case 84:
 				pBuff = CQ_getLoginNick(ac);
 				break;
 			}
@@ -808,7 +817,7 @@ void cmdExec(const char * strCmd) {
 	default:
 		break;
 	}
-	
+	return OK;
 }
 
 // 下面这段抄自https://www.cnblogs.com/cyberarmy/p/10098649.html

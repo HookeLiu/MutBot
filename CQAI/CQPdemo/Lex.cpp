@@ -177,13 +177,15 @@ extern CQcmd mainParse(std::string cmd) {
 
 	while (1) {
 		result_cmd = strTypeMatch(cmd);
-		if (result_cmd.state == 0)
+		if (result_cmd.state == 0) {
 			break;
+		}
 		i += result_cmd.subStr.length();
 		cmd = cmd.substr(result_cmd.subStr.length(), len - i);
 		highType = strHighlightType(result_cmd.state, result_cmd.subStr);
 
 		if (highType.state == 14) {
+			code.flag = 1;
 			switch (highType.pos) {
 			case 0: code.cmdID = 0; break;
 			case 1: code.cmdID = 1; break;
@@ -196,13 +198,16 @@ extern CQcmd mainParse(std::string cmd) {
 				break;
 			case 4:
 				if (code.cmdID != -1) {
-					code.toGrp = -1;
-					code.toPri = 233;
+					code.toGrp = 233;
+					code.toPri = -1;
 				}
 				break;
 			case 5:
-				code.flag = 100;
+				break;
 				// 暂时先不做那么多了, 以后再慢慢填坑吧...
+
+			case 25:
+				code.flag = 100;
 
 			default:
 				break;
@@ -210,6 +215,7 @@ extern CQcmd mainParse(std::string cmd) {
 		}
 
 		if (highType.state == 2) {
+			code.flag = 2;
 			if (result_cmd.subStr.length() > 5) {
 				if (code.toPri == 233)
 					code.toPri = std::stoll(result_cmd.subStr);
@@ -221,6 +227,7 @@ extern CQcmd mainParse(std::string cmd) {
 		}
 
 		if (highType.state == 13) {
+			code.flag = 3;
 			std::string cont = result_cmd.subStr.substr(1, result_cmd.subStr.length() - 2);
 			char buff[8192];
 			sprintf_s(buff, cont.c_str());
