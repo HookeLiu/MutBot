@@ -41,7 +41,7 @@ std::string keywords[] =         // 预设命令中的关键词, 因为不打算再造轮子做中文
 	"msg", "grp", "user", "env",
 	"self", "grpmb",
 	"delete", "kick", "ban", "anonymous", "card", "specialTitle", "log", "info", "record", "list", "image", "nick", "qq", "directory",
-	"request", "admin",    "like",
+	"request", "admin", "like"
 };
 
 const int Len_keywords = (int)(sizeof(keywords) / sizeof(std::string));
@@ -171,7 +171,7 @@ strType strHighlightType(std::int8_t state, std::string str) {
 extern CQcmd mainParse(std::string cmd) {
 	strType result_cmd;
 	strType highType;
-	static CQcmd code;
+	CQcmd code;
 	int i = 0, len;
 	len = cmd.length();
 
@@ -185,7 +185,7 @@ extern CQcmd mainParse(std::string cmd) {
 		highType = strHighlightType(result_cmd.state, result_cmd.subStr);
 
 		if (highType.state == 14) {
-			code.flag = 1;
+			code.status += 2;
 			switch (highType.pos) {
 			case 0: code.cmdID = 0; break;
 			case 1: code.cmdID = 1; break;
@@ -208,14 +208,18 @@ extern CQcmd mainParse(std::string cmd) {
 
 			case 25:
 				code.flag = 100;
-
+				if (code.cmdID != -1) {
+					code.toGrp = -1;
+					code.toPri = 233;
+				}
+				break;
 			default:
 				break;
 			}
 		}
 
 		if (highType.state == 2) {
-			code.flag = 2;
+			code.status += 3;
 			if (result_cmd.subStr.length() > 5) {
 				if (code.toPri == 233)
 					code.toPri = std::stoll(result_cmd.subStr);
@@ -227,7 +231,7 @@ extern CQcmd mainParse(std::string cmd) {
 		}
 
 		if (highType.state == 13) {
-			code.flag = 3;
+			code.status += 1;
 			std::string cont = result_cmd.subStr.substr(1, result_cmd.subStr.length() - 2);
 			char buff[8192];
 			sprintf_s(buff, cont.c_str());

@@ -306,6 +306,23 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 
 	if (fromQQ == AdminQQ) {
 
+		if (cmd.find("命令模式") != string::npos) {
+			if (DEVflag == 233) {
+				if (cmd.find("退出") != string::npos) {
+					DEVflag = -1;
+					CQ_sendPrivateMsg(ac, fromQQ, "已退出命令模式");
+					return EVENT_BLOCK;
+				}
+				else
+					CQ_sendPrivateMsg(ac, fromQQ, "已处于命令模式, 发送退出来退出");
+			}
+			if (cmd.find("进入") != string::npos && DEVflag == -1) {
+				DEVflag = 233;
+				CQ_sendPrivateMsg(ac, fromQQ, "已进入命令模式");
+				return EVENT_BLOCK;
+			}
+		}
+
 		if (DEVflag == 233) {
 			bool isExeced;
 			isExeced = cmdExec(msg);
@@ -314,21 +331,6 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 			else
 				CQ_sendPrivateMsg(ac, fromQQ, "命令执行失败");
 			return EVENT_BLOCK;
-		}
-
-		if (cmd.find("命令模式") != string::npos) {
-			if (DEVflag == 233) {
-				if (cmd.find("退出") != string::npos) {
-					DEVflag = -1;
-					CQ_sendPrivateMsg(ac, fromQQ, "已退出指令模式");
-				}
-				else
-					CQ_sendPrivateMsg(ac, fromQQ, "已处于命令模式, 发送退出来退出");
-			}
-			if (cmd.find("进入") != string::npos && DEVflag == -1) {
-				DEVflag = 233;
-				CQ_sendPrivateMsg(ac, fromQQ, "已进入命令模式");
-			}
 		}
 			
 		regex parm1("\\d{6,12}");
@@ -722,7 +724,7 @@ bool cmdExec(const char * strCmd) {
 	command = strCmd;
 	cmd = mainParse(command);
 
-	if (cmd.flag == -1) {
+	if (cmd.status < 4 || cmd.status > 8) {
 		CQ_sendPrivateMsg(ac, AdminQQ, "命令语法有误, 无法执行");
 		return Err;
 	}
@@ -733,7 +735,8 @@ bool cmdExec(const char * strCmd) {
 		if (cmd.toGrp != -1)
 			CQ_sendGroupMsg(ac, cmd.toGrp, cmd.content);
 		else if (cmd.toPri != -1) {
-			CQ_sendPrivateMsg(ac, cmd.toPri, cmd.content);
+			if (cmd.content != "Err")
+				CQ_sendPrivateMsg(ac, cmd.toPri, cmd.content);
 			if (cmd.flag == 100)
 				CQ_sendLike(ac, cmd.toPri);
 		}
