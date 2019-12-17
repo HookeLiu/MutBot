@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 struct CQcmd {
 	std::int8_t		cmdID    = -1;

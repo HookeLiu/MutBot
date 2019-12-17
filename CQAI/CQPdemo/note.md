@@ -1,159 +1,159 @@
-# ��Q SDK ���ο����ʼǱ�����˵��
+﻿# 酷Q SDK 二次开发笔记备忘和说明
 
-## ��Qbase64��Ϣ����(������)
+## 酷Qbase64信息解析(抄来的)
 
-**��һ����ֱ�ӳ�����, ����https://cqp.cc/t/28730**
+**这一节是直接抄来的, 来自https://cqp.cc/t/28730**
 
-��������Ķ��������ᵽ��base64�������Ϣ������Ҫ����base64���룬���涼�����ᣬ���������ݶ��ǽ���֮��ġ���ش�����Բο�https://cqp.cc/t/26287
+这里解析的都是上面提到的base64编码的信息，首先要经过base64解码，下面都不再提，分析的数据都是解码之后的。相关代码可以参考https://cqp.cc/t/26287
 
-* İ������Ϣ
+* 陌生人信息
 
-> ��**CQ_getStrangerInfo**���ص���Ϣ���Ѿ����ӹ����ѵ�Ҳһ����
+> 即**CQ_getStrangerInfo**返回的信息，已经添加过好友的也一样。
 >
-> ǰ8���ֽڣ���һ��Int64_t���ȣ�QQ�ţ�
+> 前8个字节，即一个Int64_t长度，QQ号；
 >
-> ������2���ֽڣ���һ��short���ȣ��ǳƳ��ȣ�
+> 接下来2个字节，即一个short长度，昵称长度；
 >
-> �������ǳƳ��ȸ��ֽڣ��ǳ��ı���
+> 接下来昵称长度个字节，昵称文本；
 >
-> ������4���ֽڣ���һ��int���ȣ��Ա�0��1Ů��
+> 接下来4个字节，即一个int长度，性别，0男1女；
 >
-> ������4���ֽڣ���һ��int���ȣ����䣬QQ�ﲻ��ֱ���޸����䣬�Գ�����Ϊ׼��
+> 接下来4个字节，即一个int长度，年龄，QQ里不能直接修改年龄，以出生年为准；
 >
-> �ṹ�ο���
+> 结构参考：
 
 ```C++
 struct CQ_TYPE_QQ
 {
-        int64_t         QQID;        //QQ��
-        std::string    nick;        //�ǳ�
-        int                 sex;        //�Ա�
-        int                  age;        //����
+        int64_t         QQID;        //QQ号
+        std::string    nick;        //昵称
+        int                 sex;        //性别
+        int                  age;        //年龄
 };
 ```
 
-* Ⱥ��Ա��Ϣ
+* 群成员信息
 
-> ��**CQ_getGroupMemberInfoV2**���ص���Ϣ
+> 即**CQ_getGroupMemberInfoV2**返回的信息
 >
-> ǰ8���ֽڣ���һ��Int64_t���ȣ�QQȺ�ţ�
+> 前8个字节，即一个Int64_t长度，QQ群号；
 >
-> ������8���ֽڣ���һ��Int64_t���ȣ�QQ�ţ�
+> 接下来8个字节，即一个Int64_t长度，QQ号；
 >
-> ������2���ֽڣ���һ��short���ȣ��ǳƳ��ȣ�
+> 接下来2个字节，即一个short长度，昵称长度；
 >
-> �������ǳƳ��ȸ��ֽڣ��ǳ��ı���
+> 接下来昵称长度个字节，昵称文本；
 >
-> ������2���ֽڣ���һ��short���ȣ�Ⱥ��Ƭ���ȣ�
+> 接下来2个字节，即一个short长度，群名片长度；
 >
-> ������Ⱥ��Ƭ���ȸ��ֽڣ�Ⱥ��Ƭ�ı���
+> 接下来群名片长度个字节，群名片文本；
 >
-> ������4���ֽڣ���һ��int���ȣ��Ա�0��1Ů��
+> 接下来4个字节，即一个int长度，性别，0男1女；
 >
-> ������4���ֽڣ���һ��int���ȣ����䣬QQ�ﲻ��ֱ���޸����䣬�Գ�����Ϊ׼��
+> 接下来4个字节，即一个int长度，年龄，QQ里不能直接修改年龄，以出生年为准；
 >
-> ������2���ֽڣ���һ��short���ȣ��������ȣ�
+> 接下来2个字节，即一个short长度，地区长度；
 >
-> �������������ȸ��ֽڣ������ı���
+> 接下来地区长度个字节，地区文本；
 >
-> ������4���ֽڣ���һ��int���ȣ���Ⱥʱ�����
+> 接下来4个字节，即一个int长度，入群时间戳；
 >
-> ������4���ֽڣ���һ��int���ȣ������ʱ�����
+> 接下来4个字节，即一个int长度，最后发言时间戳；
 >
-> ������2���ֽڣ���һ��short���ȣ�Ⱥ�ȼ����ȣ�
+> 接下来2个字节，即一个short长度，群等级长度；
 >
-> ������Ⱥ�ȼ����ȸ��ֽڣ�Ⱥ�ȼ��ı���
+> 接下来群等级长度个字节，群等级文本；
 >
-> ������4���ֽڣ���һ��int���ȣ�����Ȩ�ޣ�1��Ա��2����Ա��3Ⱥ����
+> 接下来4个字节，即一个int长度，管理权限，1成员，2管理员，3群主；
 >
-> ������4���ֽڣ���һ��int���ȣ�0����֪����ʲô�������ǲ�����¼��Ա��
+> 接下来4个字节，即一个int长度，0，不知道是什么，可能是不良记录成员；
 >
-> ������2���ֽڣ���һ��short���ȣ�ר��ͷ�γ��ȣ�
+> 接下来2个字节，即一个short长度，专属头衔长度；
 >
-> ������ר��ͷ�γ��ȳ��ȸ��ֽڣ�ר��ͷ�γ����ı���
+> 接下来专属头衔长度长度个字节，专属头衔长度文本；
 >
-> ������4���ֽڣ���һ��int���ȣ�ר��ͷ�ι���ʱ�����
+> 接下来4个字节，即一个int长度，专属头衔过期时间戳；
 >
-> ������4���ֽڣ���һ��int���ȣ������޸���Ƭ��1�������²�0�ǲ�������
+> 接下来4个字节，即一个int长度，允许修改名片，1允许，猜测0是不允许；
 >
-> �ṹ�ο���
+> 结构参考：
 >
 ```C++
 struct CQ_Type_GroupMember
 {
-        int64_t            GroupID;                       // Ⱥ��
-        int64_t            QQID;                           // QQ��
-        std::string      nick;                               // QQ�ǳ�
-        std::string      card;                               // Ⱥ��Ƭ
-        int                  sex;                              // �Ա� 0/�� 1/Ů
-        int                  age;                               // ����
-        std::string      area;                               // ����
-        int                   jointime;                       // ��Ⱥʱ��
-        int                  lastsent ;                         // �ϴη���ʱ��
-        std::string      level_name;                     // ͷ������
-        int                  permission;                    // Ȩ�޵ȼ� 1/��Ա 2/����Ա 3/Ⱥ��
-        bool               unfriendly;                       // ������Ա��¼
-        std::string      title;                                  // �Զ���ͷ��
-        int                  titleExpiretime;                   // ͷ�ι���ʱ��
-        bool               cardcanchange;                 // ����Ա�Ƿ���Э������
+        int64_t            GroupID;                       // 群号
+        int64_t            QQID;                           // QQ号
+        std::string      nick;                               // QQ昵称
+        std::string      card;                               // 群名片
+        int                  sex;                              // 性别 0/男 1/女
+        int                  age;                               // 年龄
+        std::string      area;                               // 地区
+        int                   jointime;                       // 入群时间
+        int                  lastsent ;                         // 上次发言时间
+        std::string      level_name;                     // 头衔名字
+        int                  permission;                    // 权限等级 1/成员 2/管理员 3/群主
+        bool               unfriendly;                       // 不良成员记录
+        std::string      title;                                  // 自定义头衔
+        int                  titleExpiretime;                   // 头衔过期时间
+        bool               cardcanchange;                 // 管理员是否能协助改名
 };
 ```
 
-* ������Ϣ
+* 匿名信息
 
-> ��**__eventGroupMsg**��**fromAnonymous**����
+> 即**__eventGroupMsg**的**fromAnonymous**参数
 >
-> ǰ8���ֽڣ���һ��Int64_t���ȣ�������ʶ�ţ�
+> 前8个字节，即一个Int64_t长度，匿名标识号；
 >
-> ������2���ֽڣ���һ��short���ȣ��������Ƴ��ȣ�
+> 接下来2个字节，即一个short长度，匿名名称长度；
 >
-> �������������Ƴ��ȸ��ֽڣ����������ı���
+> 接下来匿名名称长度个字节，匿名名称文本；
 >
-> ������2���ֽڣ���һ��short���ȣ�token���ȣ�Ŀǰ������40�ֽڣ�
+> 接下来2个字节，即一个short长度，token长度，目前看都是40字节；
 >
-> ������token���ȸ��ֽڣ�token���ݣ�
+> 接下来token长度个字节，token内容；
 
-## SQLite ���������
+## SQLite 错误码对照
 
 ```C
-#define SQLITE_OK           0   /* �ɹ� | Successful result */
-/* �����뿪ʼ */
-#define SQLITE_ERROR        1   /* SQL���� �� ��ʧ���ݿ� | SQL error or missing database */
-#define SQLITE_INTERNAL     2   /* SQLite �ڲ��߼����� | Internal logic error in SQLite */
-#define SQLITE_PERM         3   /* �ܾ����� | Access permission denied */
-#define SQLITE_ABORT        4   /* �ص���������ȡ������ | Callback routine requested an abort */
-#define SQLITE_BUSY         5   /* ���ݿ��ļ������� | The database file is locked */
-#define SQLITE_LOCKED       6   /* ���ݿ��е�һ���������� | A table in the database is locked */
-#define SQLITE_NOMEM        7   /* ĳ�� malloc() ��������ʧ�� | A malloc() failed */
-#define SQLITE_READONLY     8   /* ����д��һ��ֻ�����ݿ� | Attempt to write a readonly database */
-#define SQLITE_INTERRUPT    9   /* ������ sqlite3_interupt() �����ж� | Operation terminated by sqlite3_interrupt() */
-#define SQLITE_IOERR       10   /* ����ĳЩ���� I/O ���� | Some kind of disk I/O error occurred */
-#define SQLITE_CORRUPT     11   /* ���ݿ����ӳ����ȷ | The database disk image is malformed */
-#define SQLITE_NOTFOUND    12   /* sqlite3_file_control() �г���δ֪������ | Unknown opcode in sqlite3_file_control() */
-#define SQLITE_FULL        13   /* ��Ϊ���ݿ������²���ʧ�� | Insertion failed because database is full */
-#define SQLITE_CANTOPEN    14   /* �޷������ݿ��ļ� | Unable to open the database file */
-#define SQLITE_PROTOCOL    15   /* ���ݿ�����Э����� | Database lock protocol error */
-#define SQLITE_EMPTY       16   /* ���ݿ�Ϊ�� | Database is empty */
-#define SQLITE_SCHEMA      17   /* ���ݽṹ�����ı� | The database schema changed */
-#define SQLITE_TOOBIG      18   /* �ַ�������������ݳ�����С���� | String or BLOB exceeds size limit */
-#define SQLITE_CONSTRAINT  19   /* ����Լ��Υ����ȡ�� | Abort due to constraint violation */
-#define SQLITE_MISMATCH    20   /* �������Ͳ�ƥ�� | Data type mismatch */
-#define SQLITE_MISUSE      21   /* ����ȷ�Ŀ�ʹ�� | Library used incorrectly */
-#define SQLITE_NOLFS       22   /* ʹ���˲���ϵͳ��֧�ֵĹ��� | Uses OS features not supported on host */
-#define SQLITE_AUTH        23   /* ��Ȩʧ�� | Authorization denied */
-#define SQLITE_FORMAT      24   /* �������ݿ��ʽ���� | Auxiliary database format error */
-#define SQLITE_RANGE       25   /* ���ݸ�sqlite3_bind()�ĵڶ�������������Χ | 2nd parameter to sqlite3_bind out of range */
-#define SQLITE_NOTADB      26   /* ���򿪵��ļ�����һ�����ݿ��ļ� | File opened that is not a database file */
-#define SQLITE_ROW         100  /* sqlite3_step() �Ѿ�����һ���н�� | sqlite3_step() has another row ready */
-#define SQLITE_DONE        101  /* sqlite3_step() ���ִ�в��� | sqlite3_step() has finished executing */
-/* ��������� */
+#define SQLITE_OK           0   /* 成功 | Successful result */
+/* 错误码开始 */
+#define SQLITE_ERROR        1   /* SQL错误 或 丢失数据库 | SQL error or missing database */
+#define SQLITE_INTERNAL     2   /* SQLite 内部逻辑错误 | Internal logic error in SQLite */
+#define SQLITE_PERM         3   /* 拒绝访问 | Access permission denied */
+#define SQLITE_ABORT        4   /* 回调函数请求取消操作 | Callback routine requested an abort */
+#define SQLITE_BUSY         5   /* 数据库文件被锁定 | The database file is locked */
+#define SQLITE_LOCKED       6   /* 数据库中的一个表被锁定 | A table in the database is locked */
+#define SQLITE_NOMEM        7   /* 某次 malloc() 函数调用失败 | A malloc() failed */
+#define SQLITE_READONLY     8   /* 尝试写入一个只读数据库 | Attempt to write a readonly database */
+#define SQLITE_INTERRUPT    9   /* 操作被 sqlite3_interupt() 函数中断 | Operation terminated by sqlite3_interrupt() */
+#define SQLITE_IOERR       10   /* 发生某些磁盘 I/O 错误 | Some kind of disk I/O error occurred */
+#define SQLITE_CORRUPT     11   /* 数据库磁盘映像不正确 | The database disk image is malformed */
+#define SQLITE_NOTFOUND    12   /* sqlite3_file_control() 中出现未知操作数 | Unknown opcode in sqlite3_file_control() */
+#define SQLITE_FULL        13   /* 因为数据库满导致插入失败 | Insertion failed because database is full */
+#define SQLITE_CANTOPEN    14   /* 无法打开数据库文件 | Unable to open the database file */
+#define SQLITE_PROTOCOL    15   /* 数据库锁定协议错误 | Database lock protocol error */
+#define SQLITE_EMPTY       16   /* 数据库为空 | Database is empty */
+#define SQLITE_SCHEMA      17   /* 数据结构发生改变 | The database schema changed */
+#define SQLITE_TOOBIG      18   /* 字符串或二进制数据超过大小限制 | String or BLOB exceeds size limit */
+#define SQLITE_CONSTRAINT  19   /* 由于约束违例而取消 | Abort due to constraint violation */
+#define SQLITE_MISMATCH    20   /* 数据类型不匹配 | Data type mismatch */
+#define SQLITE_MISUSE      21   /* 不正确的库使用 | Library used incorrectly */
+#define SQLITE_NOLFS       22   /* 使用了操作系统不支持的功能 | Uses OS features not supported on host */
+#define SQLITE_AUTH        23   /* 授权失败 | Authorization denied */
+#define SQLITE_FORMAT      24   /* 附加数据库格式错误 | Auxiliary database format error */
+#define SQLITE_RANGE       25   /* 传递给sqlite3_bind()的第二个参数超出范围 | 2nd parameter to sqlite3_bind out of range */
+#define SQLITE_NOTADB      26   /* 被打开的文件不是一个数据库文件 | File opened that is not a database file */
+#define SQLITE_ROW         100  /* sqlite3_step() 已经产生一个行结果 | sqlite3_step() has another row ready */
+#define SQLITE_DONE        101  /* sqlite3_step() 完成执行操作 | sqlite3_step() has finished executing */
+/* 错误码结束 */
 ```
 
-## C++ʵ�ּ��׶�ʱ��(������)
+## C++实现简易定时器(抄来的)
 
-ͷ�ļ�"timer.hpp"����https://blog.csdn.net/u012234115/article/details/89857431
+头文件"timer.hpp"来自https://blog.csdn.net/u012234115/article/details/89857431
 
-ʾ���÷�:
+示例用法:
 ```C++
 int main(int argc, char* argv[])
 {
@@ -176,9 +176,9 @@ int main(int argc, char* argv[])
 }
 ```
 
-## ���ݿ����
+## 数据库设计
 
-Ŀǰ�ƻ�����һ��db, ����2������3������:`event`��`relationship`; `Activ`, `power`, `priority`.
+目前计划是用一个db, 包含2个表和3个索引:`event`和`relationship`; `Activ`, `power`, `priority`.
 
 * `event`:
 
@@ -193,11 +193,11 @@ CREATE TABLE `event` (
 	`STATUS`	INTEGER
 );
 /*
-type���¼�������: 10xxϵ��Ԥ������Q��APP���л����������; 5xxxΪ�Զ����¼�, ����ʱ��ʱ/�м���̵�, ϸ�����; 6xxxΪ��Q��Ӧ����Ϣ��QQ�¼�;
-link����Ӧ��msgId: ����¼���QQ��Ϣ�й�, �Ǿ�ȥ��Q�Լ�����־�����msgId��, �൱�ڸ�����õ����.
-cont����������: ��Ҫ��������ں�˴��ָ����ǰ�˶�, ��˴���֮ǰ�ͷ�ԭʼ��Ϣ���ݵ�Ƭ��(Ŀǰ�����128�ַ�)�Ա����.
-note����ע/����: ��ŵ�����Ϣ������־.
-status��״̬��: ��ֵԽ��Խ��Ҫ. 0-�Ѿ�������; 200-���������账��; 233-��˴������; 300-���ظ�Ⱥ��Ϣ; 301-���ظ�˽����Ϣ; 302-����������; 400-�����ȴ�; 401-��ת��������Ա; 500-������
+type→事件的类型: 10xx系列预留给酷Q及APP运行环境相关内容; 5xxx为自定义事件, 如临时计时/中间过程等, 细则待定; 6xxx为酷Q对应的消息和QQ事件;
+link→对应的msgId: 如果事件和QQ消息有关, 那就去酷Q自己的日志库根据msgId找, 相当于给后端用的外键.
+cont→交换内容: 主要设计是用于后端存放指令让前端读, 后端处理之前就放原始消息内容的片段(目前设计是128字符)以便调试.
+note→备注/调试: 存放调试信息或者日志.
+status→状态码: 数值越大越重要. 0-已经处理过; 200-正常且无需处理; 233-后端处理完成; 300-待回复群消息; 301-待回复私聊消息; 302-待处理请求; 400-继续等待; 401-待转发给管理员; 500-待调试
 */
 ```
 
@@ -215,17 +215,17 @@ CREATE TABLE `relationship` (
 	PRIMARY KEY(`QQ`)
 );
 /*
-QQ��QQ�û���: Ψһ����, ÿ�μӺ��ѵ�ʱ��ӿ�Q API��ȡ¼��. 
-Nickname����ע��: Ĭ��¼��Ӻ���ʱ������, ��˳��ԴӸ�������ȡ�˼ʹ�ϵ��ע���ɹ���Աȷ�Ϻ����.
-level��Ȩ�޵ȼ�: 0Ϊ����Ա, 250Ϊ�¼Ӻ���, 254Ϊ������. ��ֵԽ��Ȩ�޺����ȼ�Խ��.
-amity���Ѻö�: -250Ϊ���, 10Ϊ�¼Ӻ���, 250Ϊ����.
-from����Դ��ע: Ĭ���ǿ�Q API�ṩ����Դ, ��˳��ԴӸ�������ȡ��Դ��ע���ɹ���Աȷ�Ϻ����.
-note����ע: Ĭ�Ͽ�, �ɺ��ά��.
-lastActiv�����һ�λ�Ծʱ��: ���ȴ��������Ծ���ѵ�����.
+QQ→QQ用户号: 唯一主键, 每次加好友的时候从酷Q API获取录入. 
+Nickname→备注名: 默认录入加好友时的马甲, 后端尝试从附言中提取人际关系备注并由管理员确认后更新.
+level→权限等级: 0为管理员, 250为新加好友, 254为黑名单. 数值越大权限和优先级越低.
+amity→友好度: -250为厌恶, 10为新加好友, 250为亲密.
+from→来源备注: 默认是酷Q API提供的来源, 后端尝试从附言中提取来源备注并由管理员确认后更新.
+note→备注: 默认空, 由后端维护.
+lastActiv→最后一次活跃时间: 优先处理最近活跃好友的内容.
 */
 ```
 
-* ����:
+* 索引:
 
 ```sql
 CREATE INDEX `Activ` ON `relationship` ( `lastActiv` DESC );
@@ -233,62 +233,62 @@ CREATE INDEX `power` ON `relationship` ( `level` ASC );
 CREATE INDEX `priority` ON `event` ( `STATUS` DESC );
 ```
 
-���ȴ�����Ҫ��/��Ȩ�޵�/���µ���Ϣ
+优先处理重要的/高权限的/较新的消息
 
-## Ӧ������������
+## 应答命令规则设计
 
-��˳����Լ��������Ա����Q API������Ӧ�þ����ܾ���/�߿ɶ���/�ʵ��ݴ���/�������ֻ�������.
+后端程序以及人类管理员给酷Q API的命令应该尽可能精简/高可读性/适当容错性/方便在手机上输入.
 
-���㰴����ԭ����һ���򵥵������Զ�����ʵ�ָ�����ʽ������.
+打算按编译原理做一个简单的有限自动机来实现个表达式解释器.
 
-���ǵ���Q API�ṩ����Ӧ�����ܷ�Ϊ"����", "����", "��ȡ" ������; ���������ܷ�Ϊ"��Ϣ", :
+考虑到酷Q API提供的响应大致能分为"发送", "设置", "获取" 三大类; 按内容由能分为"消息", :
 
-1. ����:
+1. 发送:
 
-> _sendPrivateMsg        ����˽����Ϣ, �ɹ�������ϢID
-> _sendGroupMsg          ����Ⱥ��Ϣ, �ɹ�������ϢID
-> _sendLike              �����ֻ���
+> _sendPrivateMsg        发送私聊消息, 成功返回消息ID
+> _sendGroupMsg          发送群消息, 成功返回消息ID
+> _sendLike              发送手机赞
 				         
-2. ����:			       
+2. 设置:			       
 				         
-> _deleteMsg             ������Ϣ
-> _setGroupKick          �Ƴ�ȺԱ
-> _setGroupBan           ���ý���
-> _setGroupAdmin         ����Ⱥ����Ա
-> _setGroupWholeBan      ����ȫԱ����
-> _setGroupAnonymousBan  ��������ȺԱ
-> _setGroupAnonymous     ����Ⱥ��������
-> _setGroupCard          ����ȺԱ����
-> _setGroupLeave         ��Ⱥ
-> _setGroupSpecialTitle  ����ר��ͷ��
-> _setFriendAddRequest   ���ú�����������ͬ���ܾ�
-> _setGroupAddRequestV2  ���ü�Ⱥ����ͬ���ܾ�
-> _addLog                ���ӿ�Q��������־
-> _setFatal              ������������(ֹͣ����)
+> _deleteMsg             撤回消息
+> _setGroupKick          移除群员
+> _setGroupBan           设置禁言
+> _setGroupAdmin         设置群管理员
+> _setGroupWholeBan      设置全员禁言
+> _setGroupAnonymousBan  禁言匿名群员
+> _setGroupAnonymous     设置群匿名开关
+> _setGroupCard          设置群员马甲
+> _setGroupLeave         退群
+> _setGroupSpecialTitle  设置专属头衔
+> _setFriendAddRequest   设置好友添加请求同意或拒绝
+> _setGroupAddRequestV2  设置加群请求同意或拒绝
+> _addLog                添加酷Q自身的日志
+> _setFatal              设置致命错误(停止处理)
 
-3. ��ȡ:
+3. 获取:
 
-> _getGroupMemberInfoV2  ȡȺ��Ա��Ϣ
-> _getStrangerInfo       ȡİ������Ϣ
-> _getLoginQQ            ȡ��¼QQ
-> _getLoginNick          ȡ��¼QQ�ǳ�
-> _getRecord             ��������
+> _getGroupMemberInfoV2  取群成员信息
+> _getStrangerInfo       取陌生人信息
+> _getLoginQQ            取登录QQ
+> _getLoginNick          取登录QQ昵称
+> _getRecord             接收语音
 
-����, ����CQP.dll���ܵ���һЩAPI, ����CQ_getGroupMemberList(Ȩ�޺�160)
+此外, 利用CQP.dll还能导出一些API, 例如CQ_getGroupMemberList(权限号160)
 ```C++
 const auto dll = GetModuleHandleW(L"CQP.dll");
 for (const auto &initializer : api_func_initializers) initializer(dll);
 ```
 
-�ɴ�, ��Ƶĸ�ʽ�����Դ�����ʽ: ��Ӧ���� �������� ������ϵ �������� ����ID �������� [�޶�����]
+由此, 设计的格式化语言大致形式: 响应类型 内容类型 操作关系 操作对象 对象ID 操作内容 [限定条件]
 
 ```
-���� ��Ϣ �� ���� 616471607 ?ʾ��1?      // ������ `send msg to 616471607 ?example1?` 
-send msg to grp 483537882 ?example2?  // ������ `�� ��Ϣ �� Ⱥ 483537882 ?ʾ��2?`
-�� �ֻ��� �� ���� 616471607 10           // `�� �� �� 616471607`
+发送 消息 给 好友 616471607 ?示例1?      // 或者是 `send msg to 616471607 ?example1?` 
+send msg to grp 483537882 ?example2?  // 或者是 `发 消息 给 群 483537882 ?示例2?`
+发 手机赞 给 好友 616471607 10           // `发 赞 给 616471607`
 
-���� ��Ϣ ���� Ⱥ 483537882 ?��������Ϣ? ������=616471607
-set �û� �Ƴ� Ⱥ 483537882 2139223150
-���� �û� ���� ȺԱ 2139223150 233 ����Ⱥ=2139223150 // ��������������, 233��. ���û����������, Ĭ�ϲ������б�������Ⱥ
-���� �û� ���� Ⱥ
+设置 消息 撤回 群 483537882 ?包含的消息? 发送者=616471607
+set 用户 移除 群 483537882 2139223150
+设置 用户 禁言 群员 2139223150 233 禁言群=2139223150 // 操作内容是秒数, 233秒. 如果没有限制条件, 默认操作所有被管理的群
+设置 用户 禁言 群
 ```

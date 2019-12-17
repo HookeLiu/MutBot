@@ -77,6 +77,7 @@
   <ItemGroup>
     <ClInclude Include="appmain.h" />
     <ClInclude Include="cqp.h" />
+    <ClInclude Include="dbStruct.h" />
     <ClInclude Include="lex.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -100,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\notes\MAIN.md" />
+    <None Include="..\notes\SQLite_C.md" />
     <None Include="com.example.democ.json" />
   </ItemGroup>
   <ItemGroup>

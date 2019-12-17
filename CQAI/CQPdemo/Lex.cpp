@@ -1,22 +1,22 @@
-/*
-	# ¼òÒ×Lex½âÎö
+ï»¿/*
+	# ç®€æ˜“Lexè§£æ
 
-	## ¸ù¾İ±àÒëÔ­ÀíĞ´µÄÒ»¸ö¼òµ¥µÄÃüÁî´Ë·¨·ÖÎöÆ÷.
+	## æ ¹æ®ç¼–è¯‘åŸç†å†™çš„ä¸€ä¸ªç®€å•çš„å‘½ä»¤æ­¤æ³•åˆ†æå™¨.
 
-	Éè¼ÆµÄ¸ñÊ½»¯ÓïÑÔ´óÖÂĞÎÊ½:
-	"ÏìÓ¦ÀàĞÍ ÄÚÈİÀàĞÍ ²Ù×÷¹ØÏµ ²Ù×÷¶ÔÏó ¶ÔÏóID ²Ù×÷ÄÚÈİ [ÏŞ¶¨Ìõ¼ş]"
+	è®¾è®¡çš„æ ¼å¼åŒ–è¯­è¨€å¤§è‡´å½¢å¼:
+	"å“åº”ç±»å‹ å†…å®¹ç±»å‹ æ“ä½œå…³ç³» æ“ä½œå¯¹è±¡ å¯¹è±¡ID æ“ä½œå†…å®¹ [é™å®šæ¡ä»¶]"
 
-	Ò»´ÎÖ»½ÓÊÜÒ»ÌõÓï¾ä, ¼´»»ĞĞ·ûÎª¶Ï¾ä·û, ±äÁ¿¼°×Ö·û´®ÓÃ?°üÎ§¡£ÆäÖĞ·½À¨ºÅÊÇ¿ÉÑ¡, Ä¬ÈÏ×î´óÑ¡Ôñ¡£
+	ä¸€æ¬¡åªæ¥å—ä¸€æ¡è¯­å¥, å³æ¢è¡Œç¬¦ä¸ºæ–­å¥ç¬¦, å˜é‡åŠå­—ç¬¦ä¸²ç”¨?åŒ…å›´ã€‚å…¶ä¸­æ–¹æ‹¬å·æ˜¯å¯é€‰, é»˜è®¤æœ€å¤§é€‰æ‹©ã€‚
 
-	By ØıÖ®¹· Dec. 2019
+	By ä½šä¹‹ç‹— Dec. 2019
 */
 
 #include "stdafx.h"
 #include "string"
 #include <iostream>
-std::int8_t stateTable[16][30] = // ¸ù¾İ±àÒëÔ­Àí×öµÄÓĞÏŞ×Ô¶¯»ú, Õë¶ÔASCIIÂë¸ø³ö29¸ö×´Ì¬(¼ûhttps://raw.githubusercontent.com/HookeLiu/IC-Notebook/master/RichHighLight/lex.png)
-{                        // ÆäÊµgithub.com/HookeLiu/IC-NotebookµÄLex»¹ÊÇÑà¶ùĞ´µÄ, ÀÁµÃÔÙÉè¼ÆÖĞÎÄµÄ´Ê·¨½âÎöÁËËùÒÔ¾ÍÖ±½Ó³­À´ÓÃ°É...
-	/*                   0    1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29 | -1ÊÇÍË³ö */
+std::int8_t stateTable[16][30] = // æ ¹æ®ç¼–è¯‘åŸç†åšçš„æœ‰é™è‡ªåŠ¨æœº, é’ˆå¯¹ASCIIç ç»™å‡º29ä¸ªçŠ¶æ€(è§https://raw.githubusercontent.com/HookeLiu/IC-Notebook/master/RichHighLight/lex.png)
+{                        // å…¶å®github.com/HookeLiu/IC-Notebookçš„Lexè¿˜æ˜¯ç‡•å„¿å†™çš„, æ‡’å¾—å†è®¾è®¡ä¸­æ–‡çš„è¯æ³•è§£æäº†æ‰€ä»¥å°±ç›´æ¥æŠ„æ¥ç”¨å§...
+	/*                   0    1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29 | -1æ˜¯é€€å‡º */
 	/*  +, -        */ {25, -1, -1, -1, -1, -1, -1, -1, 9, -1, 10, -1, 12, -1, 29, -1, -1, 17, 19, 19, 19, -1, 22, 22, -1, -1, 28, 27, 28, 29} ,
 	/* *            */{25, -1, -1, -1, -1, -1, -1, -1, -1, -1, 10, -1, 12, -1, 29, -1, 18, 17, 19, 20, 19, -1, 23, 22, -1, -1, 28, 27, 28, 29},
 	/* /            */{16, -1, -1, -1, -1, -1, -1, -1, -1, -1, 10, -1, 12, -1, 29, -1, 14, 17, 19, 19, 21, -1, 22, 24, -1, -1, 28, 27, 28, 29},
@@ -35,22 +35,22 @@ std::int8_t stateTable[16][30] = // ¸ù¾İ±àÒëÔ­Àí×öµÄÓĞÏŞ×Ô¶¯»ú, Õë¶ÔASCIIÂë¸ø³ö2
 	/* other        */{25, -1, -1, -1, -1, -1, -1, -1, -1, -1, 10, -1, 12, -1, 29, -1, -1, 17, 19, 19, 19, -1, 22, 22, -1, 25, 28, 27, 28, 29}
 };
 
-std::string keywords[] =         // Ô¤ÉèÃüÁîÖĞµÄ¹Ø¼ü´Ê, ÒòÎª²»´òËãÔÙÔìÂÖ×Ó×öÖĞÎÄ½âÎöÁË, ËùÒÔ¾ÍÖ»ÓÃ¿áQ APIµÄ¹Ø¼ü´Ê, Ö®ºóµÄÔ´Óï¾äÔ¤´¦ÀíÊ±Ö±½Ó´Ö±©Ìæ»»...
+std::string keywords[] =         // é¢„è®¾å‘½ä»¤ä¸­çš„å…³é”®è¯, å› ä¸ºä¸æ‰“ç®—å†é€ è½®å­åšä¸­æ–‡è§£æäº†, æ‰€ä»¥å°±åªç”¨é…·Q APIçš„å…³é”®è¯, ä¹‹åçš„æºè¯­å¥é¢„å¤„ç†æ—¶ç›´æ¥ç²—æš´æ›¿æ¢...
 {
 	"send", "set",  "get",
 	"msg", "grp", "user", "env",
 	"self", "grpmb",
 	"delete", "kick", "ban", "anonymous", "card", "specialTitle", "log", "info", "record", "list", "image", "nick", "qq", "directory",
-	"request", "admin", "like"
+	"request", "admin", "like", "blackList"
 };
 
 const int Len_keywords = (int)(sizeof(keywords) / sizeof(std::string));
 
-/*ÕâÒ»²¿·ÖÔİÊ±ÏÈ×öÁË, ÏÈÊµÏÖ¹¦ÄÜ°É...
-std::string preproccess(std::string cmd) { // ÀÁµÃ·Ñ¾¢ÁË, Ö±½Ó±©Á¦Ìæ»»°É
+/*è¿™ä¸€éƒ¨åˆ†æš‚æ—¶å…ˆåšäº†, å…ˆå®ç°åŠŸèƒ½å§...
+std::string preproccess(std::string cmd) { // æ‡’å¾—è´¹åŠ²äº†, ç›´æ¥æš´åŠ›æ›¿æ¢å§
 	int pos;
 	std::string cmdWords[] = {
-		"ÉèÖÃ", "ÖÃ", "»ñÈ¡", "È¡", "·¢ËÍ", "·¢", "ÏûÏ¢", "Èº, "
+		"è®¾ç½®", "ç½®", "è·å–", "å–", "å‘é€", "å‘", "æ¶ˆæ¯", "ç¾¤, "
 	};
 }
 */
@@ -79,7 +79,7 @@ std::int8_t getCharType(const char c) {
 	case'#':							return 12;
 	case'0':							return 13;
 	case'A':case'B':case'C':case'D':case'F': \
-	case'a':case'b':case'c':case'd':case'f': return 14; // ·µ»ØÊÇ°´Ë³ĞòµÄ. ÕâÒ»ĞĞ²»´¦Àíe,E, ÒòÎªreturn 5 µÄÊ±ºò¾Í´¦ÀíÁË.
+	case'a':case'b':case'c':case'd':case'f': return 14; // è¿”å›æ˜¯æŒ‰é¡ºåºçš„. è¿™ä¸€è¡Œä¸å¤„ç†e,E, å› ä¸ºreturn 5 çš„æ—¶å€™å°±å¤„ç†äº†.
 	default:							return 15;
 	}
 }
@@ -92,7 +92,7 @@ struct strType
 };
 
 /*
- ¶Ô×Ö·û´®½øĞĞÆ¥Åä, ·µ»Ø´¦ÀíÍê³ÉÊ±µÄ×Ô¶¯»ú½ÚµãÎ»ÖÃºÍ×Ö·û´®
+ å¯¹å­—ç¬¦ä¸²è¿›è¡ŒåŒ¹é…, è¿”å›å¤„ç†å®Œæˆæ—¶çš„è‡ªåŠ¨æœºèŠ‚ç‚¹ä½ç½®å’Œå­—ç¬¦ä¸²
 */
 strType strTypeMatch(std::string str) {
 	std::int8_t typ, i, len;
@@ -119,15 +119,15 @@ strType strTypeMatch(std::string str) {
 	return stm;
 }
 
-/* stateTable¶ÔÓ¦µÄ¸ßÁÁÀàĞÍ
+/* stateTableå¯¹åº”çš„é«˜äº®ç±»å‹
   0                     1               2                  3
- ´íÎó                   hexÊı×Ö         Ò»°ãÊı×Ö           ·ûºÅ,×Ô¶¯»úÀïµÄ·ûºÅ
+ é”™è¯¯                   hexæ•°å­—         ä¸€èˆ¬æ•°å­—           ç¬¦å·,è‡ªåŠ¨æœºé‡Œçš„ç¬¦å·
   4                     5               6                  7
- ÆäËüÄÚÈİ,¿ÉÄÜÊÇ·ûºÅ    #×¢ÊÍ(Ô¤´¦Àí)   // ×¢ÊÍ            ¶àĞĞ×¢ÊÍ
+ å…¶å®ƒå†…å®¹,å¯èƒ½æ˜¯ç¬¦å·    #æ³¨é‡Š(é¢„å¤„ç†)   // æ³¨é‡Š            å¤šè¡Œæ³¨é‡Š
   8                     9               10                 11
- #!ÄÚÈİ                 //!ÄÚÈİ         /*!ÄÚÈİ            ±êÊ¶·û
+ #!å†…å®¹                 //!å†…å®¹         /*!å†…å®¹            æ ‡è¯†ç¬¦
   12                    13              14
-  '',×Ö·û               "" ×Ö·û´®       ¹Ø¼ü×Ö1
+  '',å­—ç¬¦               "" å­—ç¬¦ä¸²       å…³é”®å­—1
 */
 strType strHighlightType(std::int8_t state, std::string str) {
 	int typ = 0;
@@ -151,7 +151,7 @@ strType strHighlightType(std::int8_t state, std::string str) {
 	case 24: typ = 10; break;                       // /                        
 	case 15:                                        // ident,[![0~9]ident]  
 		for (int i = 0; i < Len_keywords; i += 1) {
-			if (keywords[i] == str) {				// ÅĞ¶ÏstrÊÇ²»ÊÇkeylistÀïÖ¸¶¨µÄ¹Ø¼ü´Ê
+			if (keywords[i] == str) {				// åˆ¤æ–­stræ˜¯ä¸æ˜¯keylisté‡ŒæŒ‡å®šçš„å…³é”®è¯
 				typ = 14;
 				keywd.subStr = keywords[i];
 				keywd.pos = i;
@@ -184,27 +184,31 @@ extern CQcmd mainParse(std::string cmd) {
 		cmd = cmd.substr(result_cmd.subStr.length(), len - i);
 		highType = strHighlightType(result_cmd.state, result_cmd.subStr);
 
-		if (highType.state == 14) {
+		if (highType.state == 14) {                     // 14æ˜¯é¢„è®¾å…³é”®è¯    å¼€å§‹æ˜¯æƒ³ç€æŒ‰ç…§`å…³é”®è¯ + [å…³é”®è¯] + æ“ä½œæ•° + æ“ä½œå†…å®¹`çš„æ¨¡å¼æ¥, ä½†æ˜¯...ä¹Ÿè®¸ä»¥åå¾—é‡æ–°è®¾è®¡ä¸€ä¸‹...
 			code.status += 2;
 			switch (highType.pos) {
-			case 0: code.cmdID = 0; break;
-			case 1: code.cmdID = 1; break;
-			case 2: code.cmdID = 2; break;
-			case 3:
-				if (code.cmdID != -1) {
+			case 0: code.cmdID = 0; break;              // send
+			case 1: code.cmdID = 1; break;              // set    
+			case 2: code.cmdID = 2; break;              // get      
+			case 3:                                     // msg, msgæœ‰ `send`, `set`, `get` ä¸‰ä¸ªåŠ¨ä½œ
+				if (code.cmdID == 0) {
 					code.toGrp = -1;
 					code.toPri = 233;
 				}
+				if (code.cmdID == 1) {
+					code.action = 849424;               // msgè¢«`è®¾ç½®`å°±åªæœ‰`æ’¤å›`ä¸€ç§æƒ…å†µ, æ‰€ä»¥å…³é”®è¯`delete`å’Œé™å®šæ¡ä»¶å¯æœ‰å¯æ— . (ç¼–å·å·æ‡’, `æ’¤å›`çš„ä¹å®«æ ¼è¾“å…¥æ•°...)
+					code.subCmdID = 0;
+				}
 				break;
-			case 4:
-				if (code.cmdID != -1) {
+			case 4:                                     // grp, grpæœ‰ `set`çš„é™å®š: `ban`, `anonymous`, `request`, `admin`, `kick` ; `get`çš„é™å®š: `info`, `list`
+				if (code.cmdID == 0) {
 					code.toGrp = 233;
 					code.toPri = -1;
 				}
 				break;
 			case 5:
 				break;
-				// ÔİÊ±ÏÈ²»×öÄÇÃ´¶àÁË, ÒÔºóÔÙÂıÂıÌî¿Ó°É...
+				// æš‚æ—¶å…ˆä¸åšé‚£ä¹ˆå¤šäº†, ä»¥åå†æ…¢æ…¢å¡«å‘å§...
 
 			case 25:
 				code.flag = 100;
@@ -213,24 +217,30 @@ extern CQcmd mainParse(std::string cmd) {
 					code.toPri = 233;
 				}
 				break;
+			case 26: code.cmdID = 4; code.status += 4; break;
 			default:
 				break;
 			}
 		}
 
-		if (highType.state == 2) {
+		if (highType.state == 2) {                  // 2æ˜¯æ•°å­—
 			code.status += 3;
-			if (result_cmd.subStr.length() > 5) {
+			if (code.cmdID == 0) {
 				if (code.toPri == 233)
 					code.toPri = std::stoll(result_cmd.subStr);
 				if (code.toGrp == 233)
 					code.toGrp = std::stoll(result_cmd.subStr);
 			}
-			else
+			else if (code.cmdID == 1) {
+				if (code.action == 849424)
+					code.action = std::stol(result_cmd.subStr);
+			}
+			else if (code.cmdID == 4) {
 				code.action = std::stol(result_cmd.subStr);
+			}
 		}
 
-		if (highType.state == 13) {
+		if (highType.state == 13) {                 // 13æ˜¯é—®å·å­—ç¬¦ä¸²
 			code.status += 1;
 			std::string cont = result_cmd.subStr.substr(1, result_cmd.subStr.length() - 2);
 			char buff[8192];

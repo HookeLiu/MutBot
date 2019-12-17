@@ -24,3 +24,4 @@
 #include <thread>
 #include "timer.hpp"
 #include "lex.h"
+#include "dbStruct.h"

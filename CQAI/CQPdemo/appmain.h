@@ -1,2 +1,2 @@
-#define CQAPPID "cn.17ds8.AItest" //ÇëĞŞ¸ÄAppID£¬¹æÔò¼û http://d.cqp.me/Pro/¿ª·¢/»ù´¡ĞÅÏ¢
+ï»¿#define CQAPPID "cn.17ds8.AItest" //è¯·ä¿®æ”¹AppIDï¼Œè§„åˆ™è§ http://d.cqp.me/Pro/å¼€å‘/åŸºç¡€ä¿¡æ¯
 #define CQAPPINFO CQAPIVERTEXT "," CQAPPID

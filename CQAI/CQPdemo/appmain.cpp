@@ -1,11 +1,11 @@
-/*
-*	17ds8¶à¹¦ÄÜAIµÄQQ½Ó¿Ú. Ñ¡ÓÃµÄÊÇ¿áQ¹Ù·½SDKµÄVC++°æ±¾, ÒòÎªÕâ¸ö°æ±¾µÄ·â×°×îÉÙ×î½Ó½üµ×²ã, APIºÍ½á¹¹×îÇåÎú. Ã»ÓĞÑ¡ÓÃÒ×ÓïÑÔµÄÒ»¸öÔ­ÒòÊÇÄÑÒÔ×öÍ¨ÓÃ¿ª·¢(¹Ø¼üÔ­ÒòÊÇÒ×ÓïÑÔÒª¸¶·ÑÇÒ½çÃæÀÛ×¸, ¸öÈËÒ²²»Ï°¹ßÒ×ÓïÑÔÄÇÖÖºº»¯ºÍÃüÃû·½Ê½)
-*	Õâ¸ö¶à¹¦ÄÜAIÏîÄ¿µÄ±¾ÌåÔÚÓÚºó¶Ë´¦Àí³ÌĞò,
-*	Õâ¸öVC++¹¤³Ì»ù±¾Ö»ÊÇÔÚ¿áQ¹Ù·½¸øµÄSDKÉÏ×öÒ»¸ö¼òÒ×µÄÊı¾İ½Ó¿Ú, ×÷Îªºó¶ËAI³ÌĞòºÍQQÓÃ»§µÄÇÅÁº.
-*	ËùÒÔ»ù±¾ÉÏ¾ÍÊÇclone¹ıÀ´¼ÓÁËµãÄÚÈİ, Ò²Ã»É¶¸Ä¶¯. ºó¶ËÖ÷ÒªÊÇÓÃPython, ÏûÏ¢´¦ÀíÖ÷ÌåÒÀ¿¿Éñ¾­ÍøÂç.
-*	(ĞèÒª×¢ÒâµÄÊÇ, ¿áQºÍÕâ¸ö¹¤³ÌÓÃµÄ¶¼ÊÇGB2312, Êı¾İ¿âÒÔ¼°ºó¶Ë³ÌĞòÓÃµÄ¶¼ÊÇUTF-8, 
-*	ËùÒÔÕâÀïÓÃÁË¸öÍøÉÏ³­À´µÄ¼òÒ××ªÂëº¯Êı).
-*	By ØıÖ®¹· Dec. 2019
+ï»¿/*
+*	17ds8å¤šåŠŸèƒ½AIçš„QQæ¥å£. é€‰ç”¨çš„æ˜¯é…·Qå®˜æ–¹SDKçš„VC++ç‰ˆæœ¬, å› ä¸ºè¿™ä¸ªç‰ˆæœ¬çš„å°è£…æœ€å°‘æœ€æ¥è¿‘åº•å±‚, APIå’Œç»“æ„æœ€æ¸…æ™°. æ²¡æœ‰é€‰ç”¨æ˜“è¯­è¨€çš„ä¸€ä¸ªåŸå› æ˜¯éš¾ä»¥åšé€šç”¨å¼€å‘(å…³é”®åŸå› æ˜¯æ˜“è¯­è¨€è¦ä»˜è´¹ä¸”ç•Œé¢ç´¯èµ˜, ä¸ªäººä¹Ÿä¸ä¹ æƒ¯æ˜“è¯­è¨€é‚£ç§æ±‰åŒ–å’Œå‘½åæ–¹å¼)
+*	è¿™ä¸ªå¤šåŠŸèƒ½AIé¡¹ç›®çš„æœ¬ä½“åœ¨äºåç«¯å¤„ç†ç¨‹åº,
+*	è¿™ä¸ªVC++å·¥ç¨‹åŸºæœ¬åªæ˜¯åœ¨é…·Qå®˜æ–¹ç»™çš„SDKä¸Šåšä¸€ä¸ªç®€æ˜“çš„æ•°æ®æ¥å£, ä½œä¸ºåç«¯AIç¨‹åºå’ŒQQç”¨æˆ·çš„æ¡¥æ¢.
+*	æ‰€ä»¥åŸºæœ¬ä¸Šå°±æ˜¯cloneè¿‡æ¥åŠ äº†ç‚¹å†…å®¹, ä¹Ÿæ²¡å•¥æ”¹åŠ¨. åç«¯ä¸»è¦æ˜¯ç”¨Python, æ¶ˆæ¯å¤„ç†ä¸»ä½“ä¾é ç¥ç»ç½‘ç»œ.
+*	(éœ€è¦æ³¨æ„çš„æ˜¯, é…·Qå’Œè¿™ä¸ªå·¥ç¨‹ç”¨çš„éƒ½æ˜¯GB2312, æ•°æ®åº“ä»¥åŠåç«¯ç¨‹åºç”¨çš„éƒ½æ˜¯UTF-8, 
+*	æ‰€ä»¥è¿™é‡Œç”¨äº†ä¸ªç½‘ä¸ŠæŠ„æ¥çš„ç®€æ˜“è½¬ç å‡½æ•°).
+*	By ä½šä¹‹ç‹— Dec. 2019
 */
 /*
 * CoolQ Demo for VC++ 
@@ -16,10 +16,11 @@
 #include "stdafx.h"
 #include "string"
 #include "cqp.h"
-#include "appmain.h" //Ó¦ÓÃAppIDµÈĞÅÏ¢£¬ÇëÕıÈ·ÌîĞ´£¬·ñÔò¿áQ¿ÉÄÜÎŞ·¨¼ÓÔØ
+#include "appmain.h" //åº”ç”¨AppIDç­‰ä¿¡æ¯ï¼Œè¯·æ­£ç¡®å¡«å†™ï¼Œå¦åˆ™é…·Qå¯èƒ½æ— æ³•åŠ è½½
 
-#define OK  0
-#define Err 1
+#define OK       1
+#define Err      -1
+#define Unkown   0
 
 #pragma comment(lib,"Winmm.lib")
 
@@ -27,8 +28,8 @@ using namespace std;
 
 sqlite3* db;
 char*    zErrMsg = NULL;
-int      rc = -1, GroupCount = 0, Gflag = -1, GtmpCounter = 0, DEVflag = -1;
-
+int      rc = -1, GroupCounter = 0, adminConverFlag = -1, DEVflag = -1;
+static uint64_t GtmpCounter = 0;
 uint64_t toQQ  = -1;
 uint64_t toGp = -1;
 
@@ -37,23 +38,25 @@ void polling();
 char* U2G(const char* );
 char* G2U(const char* );
 void respTimer();
-bool cmdExec(const char* command);
+int cmdExec(const char* command);
 extern CQcmd mainParse(std::string cmd);
 
-string   APPpath, pBuff;
+string pBuff;
+string blackList;  // é»‘åå•, ä»¥ååšæˆè¯»é…ç½®é¡¹çš„
 
 time_t CQSTATRTTIME = time(NULL);
 
 time_t Time_lastTrigger;
 
-const int64_t AdminQQ = 2139223150; // ÒÔºó´òËãÍ¨¹ı¶ÁÅäÖÃÎÄ¼şÖ®ÀàµÄ·½Ê½À´¶¯Ì¬ÉèÖÃ
+const int64_t AdminQQ = 2139223150; // ä»¥åæ‰“ç®—é€šè¿‡è¯»é…ç½®æ–‡ä»¶ä¹‹ç±»çš„æ–¹å¼æ¥åŠ¨æ€è®¾ç½®
+static string APPpath, dbPath;
 
-int ac = -1; //AuthCode µ÷ÓÃ¿áQµÄ·½·¨Ê±ĞèÒªÓÃµ½
+int ac = -1; //AuthCode è°ƒç”¨é…·Qçš„æ–¹æ³•æ—¶éœ€è¦ç”¨åˆ°
 bool enabled = false;
 
 
 /* 
-* ·µ»ØÓ¦ÓÃµÄApiVer¡¢Appid£¬´ò°üºó½«²»»áµ÷ÓÃ
+* è¿”å›åº”ç”¨çš„ApiVerã€Appidï¼Œæ‰“åŒ…åå°†ä¸ä¼šè°ƒç”¨
 */
 CQEVENT(const char*, AppInfo, 0)() {
 	return CQAPPINFO;
@@ -61,8 +64,8 @@ CQEVENT(const char*, AppInfo, 0)() {
 
 
 /* 
-* ½ÓÊÕÓ¦ÓÃAuthCode£¬¿áQ¶ÁÈ¡Ó¦ÓÃĞÅÏ¢ºó£¬Èç¹û½ÓÊÜ¸ÃÓ¦ÓÃ£¬½«»áµ÷ÓÃÕâ¸öº¯Êı²¢´«µİAuthCode¡£
-* ²»ÒªÔÚ±¾º¯Êı´¦ÀíÆäËûÈÎºÎ´úÂë£¬ÒÔÃâ·¢ÉúÒì³£Çé¿ö¡£ÈçĞèÖ´ĞĞ³õÊ¼»¯´úÂëÇëÔÚStartupÊÂ¼şÖĞÖ´ĞĞ£¨Type=1001£©¡£
+* æ¥æ”¶åº”ç”¨AuthCodeï¼Œé…·Qè¯»å–åº”ç”¨ä¿¡æ¯åï¼Œå¦‚æœæ¥å—è¯¥åº”ç”¨ï¼Œå°†ä¼šè°ƒç”¨è¿™ä¸ªå‡½æ•°å¹¶ä¼ é€’AuthCodeã€‚
+* ä¸è¦åœ¨æœ¬å‡½æ•°å¤„ç†å…¶ä»–ä»»ä½•ä»£ç ï¼Œä»¥å…å‘ç”Ÿå¼‚å¸¸æƒ…å†µã€‚å¦‚éœ€æ‰§è¡Œåˆå§‹åŒ–ä»£ç è¯·åœ¨Startupäº‹ä»¶ä¸­æ‰§è¡Œï¼ˆType=1001ï¼‰ã€‚
 */
 CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 	ac = AuthCode;
@@ -71,15 +74,13 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 
 
 /*
-* Type=1001 ¿áQÆô¶¯
-* ÎŞÂÛ±¾Ó¦ÓÃÊÇ·ñ±»ÆôÓÃ£¬±¾º¯Êı¶¼»áÔÚ¿áQÆô¶¯ºóÖ´ĞĞÒ»´Î£¬ÇëÔÚÕâÀïÖ´ĞĞÓ¦ÓÃ³õÊ¼»¯´úÂë¡£
-* Èç·Ç±ØÒª£¬²»½¨ÒéÔÚÕâÀï¼ÓÔØ´°¿Ú¡££¨¿ÉÒÔÌí¼Ó²Ëµ¥£¬ÈÃÓÃ»§ÊÖ¶¯´ò¿ª´°¿Ú£©
+* Type=1001 é…·Qå¯åŠ¨
+* æ— è®ºæœ¬åº”ç”¨æ˜¯å¦è¢«å¯ç”¨ï¼Œæœ¬å‡½æ•°éƒ½ä¼šåœ¨é…·Qå¯åŠ¨åæ‰§è¡Œä¸€æ¬¡ï¼Œè¯·åœ¨è¿™é‡Œæ‰§è¡Œåº”ç”¨åˆå§‹åŒ–ä»£ç ã€‚
+* å¦‚éå¿…è¦ï¼Œä¸å»ºè®®åœ¨è¿™é‡ŒåŠ è½½çª—å£ã€‚ï¼ˆå¯ä»¥æ·»åŠ èœå•ï¼Œè®©ç”¨æˆ·æ‰‹åŠ¨æ‰“å¼€çª—å£ï¼‰
 */
 CQEVENT(int32_t, __eventStartup, 0)() {
 
 	APPpath = CQ_getAppDirectory(ac);
-	pBuff = "µ±Ç°Ó¦ÓÃÄ¿Â¼¡ú" + APPpath;
-	CQ_addLog(ac, CQLOG_DEBUG, "ÔËĞĞ»·¾³", pBuff.c_str());
 
 	FILE* flog;
 	char buff[256];
@@ -93,14 +94,13 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 
 	}
 	
-
 	if (flog != NULL) {
 		fseek(flog, 0, SEEK_END);
 		int len_file = (int)ftell(flog);
 		rewind(flog);
 		if (len_file < 11 || len_file > 12) {
-			pBuff = "¿áQÆô¶¯¼ÇÂ¼ÎÄ¼ş³¤¶ÈÎª" + to_string(len_file) + ", ¿ÉÄÜ´æÔÚÎÊÌâ";
-			CQ_addLog(ac, CQLOG_WARNING, "ÔËĞĞ»·¾³", pBuff.c_str());
+			pBuff = "é…·Qå¯åŠ¨è®°å½•æ–‡ä»¶é•¿åº¦ä¸º" + to_string(len_file) + ", å¯èƒ½å­˜åœ¨é—®é¢˜ä¹Ÿå¯èƒ½æ˜¯ç¬¬ä¸€æ¬¡ä½¿ç”¨";
+			CQ_addLog(ac, CQLOG_WARNING, "è¿è¡Œç¯å¢ƒ", pBuff.c_str());
 		}
 		else {
 			char sta[2], tim[11];
@@ -109,8 +109,8 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 			sta[1] = '\0';
 			fread(&tim, 1, 10, flog);
 			tim[10] = '\0';
-			sprintf_s(buff, "¿áQÆô¶¯³É¹¦, ÉÏ´Î¼ÇÂ¼×´Ì¬¡ú%s, ÉÏ´Î¼ÇÂ¼Ê±¼ä¡ú%s", sta, tim);
-			CQ_addLog(ac, CQLOG_DEBUG, "ÔËĞĞ»·¾³", buff);
+			sprintf_s(buff, "é…·Qå¯åŠ¨æˆåŠŸ, ä¸Šæ¬¡è®°å½•çŠ¶æ€â†’%s, ä¸Šæ¬¡è®°å½•æ—¶é—´â†’%s", sta, tim);
+			CQ_addLog(ac, CQLOG_DEBUG, "è¿è¡Œç¯å¢ƒ", buff);
 		}
 		fseek(flog, 0, SEEK_SET);
 		sprintf_s(buff, "1 %I64d", curTime);
@@ -118,26 +118,54 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 		fclose(flog);
 	}
 	else {
-			CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", "×´Ì¬ÎÄ¼ş´ò¿ªÊ§°Ü, Çë¼ì²éÄ¿Â¼ÒÔ¼°È¨ÏŞ");
-			pBuff = "µ±Ç°APPÄ¿Â¼¡ú" + APPpath;
-			CQ_addLog(ac, CQLOG_INFO, "ÔËĞĞ»·¾³", pBuff.c_str());
+			CQ_addLog(ac, CQLOG_WARNING, "è¿è¡Œç¯å¢ƒ", "çŠ¶æ€æ–‡ä»¶æ‰“å¼€å¤±è´¥, å°è¯•åˆ›å»ºæ–‡ä»¶");
+			pBuff = APPpath + "status.log";
+			try {
+				fopen_s(&flog, pBuff.c_str(), "w");
+			}
+			catch (const std::exception&) {
+
+			}
+			if (flog != NULL) {
+				CQ_addLog(ac, CQLOG_INFOSUCCESS, "é¦–æ¬¡å¯åŠ¨", "æ–°å»ºæˆåŠŸ. æ¬¢è¿ä½¿ç”¨~");
+			}
+			else {
+				CQ_addLog(ac, CQLOG_ERROR, "è¿è¡Œç¯å¢ƒ", "å°è¯•å†æ¬¡åˆ›å»ºä»ç„¶å¤±è´¥, è¯·æ£€æŸ¥ç›®å½•åä»¥åŠæƒé™.");
+			}
+			pBuff = "å½“å‰APPç›®å½•â†’" + APPpath;
+			CQ_addLog(ac, CQLOG_INFO, "è¿è¡Œç¯å¢ƒ", pBuff.c_str());
 	}
 	if(flog != NULL)
 		fclose(flog);
+
+	if (db != NULL) {
+		sqlite3_free(zErrMsg);
+		sqlite3_close(db);
+		db = NULL;
+	}
 
 	return 0;
 }
 
 
 /*
-* Type=1002 ¿áQÍË³ö
-* ÎŞÂÛ±¾Ó¦ÓÃÊÇ·ñ±»ÆôÓÃ£¬±¾º¯Êı¶¼»áÔÚ¿áQÍË³öÇ°Ö´ĞĞÒ»´Î£¬ÇëÔÚÕâÀïÖ´ĞĞ²å¼ş¹Ø±Õ´úÂë¡£
-* ±¾º¯Êıµ÷ÓÃÍê±Ïºó£¬¿áQ½«ºÜ¿ì¹Ø±Õ£¬Çë²»ÒªÔÙÍ¨¹ıÏß³ÌµÈ·½Ê½Ö´ĞĞÆäËû´úÂë¡£
+* Type=1002 é…·Qé€€å‡º
+* æ— è®ºæœ¬åº”ç”¨æ˜¯å¦è¢«å¯ç”¨ï¼Œæœ¬å‡½æ•°éƒ½ä¼šåœ¨é…·Qé€€å‡ºå‰æ‰§è¡Œä¸€æ¬¡ï¼Œè¯·åœ¨è¿™é‡Œæ‰§è¡Œæ’ä»¶å…³é—­ä»£ç ã€‚
+* æœ¬å‡½æ•°è°ƒç”¨å®Œæ¯•åï¼Œé…·Qå°†å¾ˆå¿«å…³é—­ï¼Œè¯·ä¸è¦å†é€šè¿‡çº¿ç¨‹ç­‰æ–¹å¼æ‰§è¡Œå…¶ä»–ä»£ç ã€‚
 */
 CQEVENT(int32_t, __eventExit, 0)() {
 	char buff[256];
 	FILE* flog;
 	time_t curTime = time(NULL);
+
+	if (db == NULL) {
+		sqlite3_open(dbPath.c_str(), &db);
+	}
+
+	string sql;
+	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`)"\
+		"VALUES(1003, 'æœ¬æ¬¡è¿è¡Œè§¦å‘äº† " + to_string(GtmpCounter) +" æ¬¡', CQ_on_EXIT, 200); ";
+	rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
 
 	pBuff = APPpath + "status.log";
 	fopen_s(&flog, pBuff.c_str(), "w");
@@ -147,115 +175,213 @@ CQEVENT(int32_t, __eventExit, 0)() {
 		fclose(flog);
 	}
 	if (db != NULL) {
-		sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-		sqlite3_close(db);
 		sqlite3_free(zErrMsg);
+		sqlite3_close(db);
+		db = NULL;
 	}
 	return 0;
 }
 
 /*
-* Type=1003 Ó¦ÓÃÒÑ±»ÆôÓÃ
-* µ±Ó¦ÓÃ±»ÆôÓÃºó£¬½«ÊÕµ½´ËÊÂ¼ş¡£
-* Èç¹û¿áQÔØÈëÊ±Ó¦ÓÃÒÑ±»ÆôÓÃ£¬ÔòÔÚ_eventStartup(Type=1001,¿áQÆô¶¯)±»µ÷ÓÃºó£¬±¾º¯ÊıÒ²½«±»µ÷ÓÃÒ»´Î¡£
-* Èç·Ç±ØÒª£¬²»½¨ÒéÔÚÕâÀï¼ÓÔØ´°¿Ú¡££¨¿ÉÒÔÌí¼Ó²Ëµ¥£¬ÈÃÓÃ»§ÊÖ¶¯´ò¿ª´°¿Ú£©
+* Type=1003 åº”ç”¨å·²è¢«å¯ç”¨
+* å½“åº”ç”¨è¢«å¯ç”¨åï¼Œå°†æ”¶åˆ°æ­¤äº‹ä»¶ã€‚
+* å¦‚æœé…·Qè½½å…¥æ—¶åº”ç”¨å·²è¢«å¯ç”¨ï¼Œåˆ™åœ¨_eventStartup(Type=1001,é…·Qå¯åŠ¨)è¢«è°ƒç”¨åï¼Œæœ¬å‡½æ•°ä¹Ÿå°†è¢«è°ƒç”¨ä¸€æ¬¡ã€‚
+* å¦‚éå¿…è¦ï¼Œä¸å»ºè®®åœ¨è¿™é‡ŒåŠ è½½çª—å£ã€‚ï¼ˆå¯ä»¥æ·»åŠ èœå•ï¼Œè®©ç”¨æˆ·æ‰‹åŠ¨æ‰“å¼€çª—å£ï¼‰
 */
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
 
-	char *outbuff;
+	char *outbuff = NULL;
 
-	pBuff = CQ_getAppDirectory(ac) ;
-	pBuff += "app.db";
-	rc = sqlite3_open(pBuff.c_str(), &db);
-	pBuff = "Êı¾İ¿â(" + pBuff + ")Á¬½Ó×´Ì¬¡ú" + to_string(rc);
-	CQ_addLog(ac, CQLOG_DEBUG, "Êı¾İ¿â", pBuff.c_str());
+	dbPath = APPpath + "app.db";
+
+	
+	rc = sqlite3_open(dbPath.c_str(), &db);
+	pBuff = "æ•°æ®åº“(" + dbPath + ")è¿æ¥çŠ¶æ€â†’" + to_string(rc);
+	CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", pBuff.c_str());
+	
 
 	if ( rc == SQLITE_OK ) {
-		// µÃÏÈ¼ì²éÒ»ÏÂÊı¾İ¿âÊÇ²»ÊÇÕıÈ·µÄ, ²»ÊÇµÄ»°¾ÍÓĞ¿ÉÄÜÊÇµÚÒ»´ÎÊ¹ÓÃ, ¾Í»¹µÃ³õÊ¼»¯Ò»ÏÂ
+		// å¾—å…ˆæ£€æŸ¥ä¸€ä¸‹æ•°æ®åº“æ˜¯ä¸æ˜¯æ­£ç¡®çš„, ä¸æ˜¯çš„è¯å°±æœ‰å¯èƒ½æ˜¯ç¬¬ä¸€æ¬¡ä½¿ç”¨, å°±è¿˜å¾—åˆå§‹åŒ–ä¸€ä¸‹
 		bool dbIscorrect = FALSE;
-		// ÏÂÃæÕâ¶ÎÊÇ³­À´µÄ
+		// ä¸‹é¢è¿™æ®µæ˜¯æŠ„æ¥çš„
 		char strFindTable[128];
-		sprintf_s(strFindTable, 127, "SELECT * FROM `sqlite_master` where type = 'table' and name = 'event'");
+		const char* sqlIni = "SELECT * FROM `sqlite_master` where type = 'table' and name = 'event'";
+		sprintf_s(strFindTable, 127, sqlIni);
 		sqlite3_stmt* stmt0 = NULL;
-		if (sqlite3_prepare_v2(db, strFindTable, strlen(strFindTable), &stmt0, NULL) != SQLITE_OK) {
-			if (stmt0) {
+		if (sqlite3_prepare_v2(db, strFindTable, -1, &stmt0, NULL) != SQLITE_OK) {
+			if (stmt0) 
 				sqlite3_finalize(stmt0);
-				sqlite3_close(db);
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", "Êı¾İ¿â²éÑ¯³õÊ¼»¯´íÎó");
-			}
+			sqlite3_close(db);
+			int errCode = sqlite3_errcode(db);
+			char buff[512];
+			sprintf_s(buff, "æ•°æ®åº“(%s)å·²è¿æ¥(çŠ¶æ€%d), ä½†æ‰§è¡Œåˆå§‹åŒ–æŸ¥è¯¢(%s)å¤±è´¥(%d)â†’ %s", dbPath.c_str(), rc, sqlIni, errCode, sqlite3_errmsg(db));
+			CQ_addLog(ac, CQLOG_FATAL, "è¿è¡Œç¯å¢ƒ", buff);
+			return -1;
 		}
 		int r = sqlite3_step(stmt0);
-		//ÅĞ¶Ï±í´æÔÚ£¬½á¹û¼¯ÊÇ·ñÒÑµ½Ä©Î²
-		//Í¨¹ısqlite3_stepÃüÁîÖ´ĞĞ´´½¨±íµÄÓï¾ä¡£¶ÔÓÚDDLºÍDMLÓï¾ä¶øÑÔ£¬ sqlite3_stepÖ´ĞĞÕıÈ·µÄ·µ»ØÖµ
-		//Ö»ÓĞSQLITE_DONE£¬¶ÔÓÚSELECT²éÑ¯¶øÑÔ£¬Èç¹ûÓĞÊı¾İ·µ»ØSQLITE_ROW£¬µ±µ½´ï½á¹û¼¯Ä©Î²Ê±Ôò·µ»ØSQLITE_DONE¡£
+		//åˆ¤æ–­è¡¨å­˜åœ¨ï¼Œç»“æœé›†æ˜¯å¦å·²åˆ°æœ«å°¾
+		//é€šè¿‡sqlite3_stepå‘½ä»¤æ‰§è¡Œåˆ›å»ºè¡¨çš„è¯­å¥ã€‚å¯¹äºDDLå’ŒDMLè¯­å¥è€Œè¨€ï¼Œ sqlite3_stepæ‰§è¡Œæ­£ç¡®çš„è¿”å›å€¼
+		//åªæœ‰SQLITE_DONEï¼Œå¯¹äºSELECTæŸ¥è¯¢è€Œè¨€ï¼Œå¦‚æœæœ‰æ•°æ®è¿”å›SQLITE_ROWï¼Œå½“åˆ°è¾¾ç»“æœé›†æœ«å°¾æ—¶åˆ™è¿”å›SQLITE_DONEã€‚
 		if (r == SQLITE_DONE) {
 			dbIscorrect = FALSE;
-			CQ_addLog(ac, CQLOG_WARNING, "Êı¾İ¿â", "Ã»ÓĞÕÒµ½Êı¾İ±í, ×¼±¸³õÊ¼»¯Êı¾İ¿â...");
+			CQ_addLog(ac, CQLOG_WARNING, "æ•°æ®åº“", "æ²¡æœ‰æ‰¾åˆ°æ•°æ®è¡¨, å¯èƒ½æ˜¯ç¬¬ä¸€æ¬¡ä½¿ç”¨, å‡†å¤‡åˆå§‹åŒ–æ•°æ®åº“...");
 		}
-		else if (r == SQLITE_ROW) 
-			dbIscorrect = TRUE;
-		// ÉÏÃæÕâ¶ÎÊÇ³­À´µÄ
-
-		// ÕâÒ»¶ÎÊÇapp.dbµÄ½á¹¹
-		if (dbIscorrect != TRUE) {
-			rc = sqlite3_exec(db, "CREATE TABLE  `event` (`EID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,`TYPE` INTEGER NOT NULL,`TIME` NUMERIC NOT NULL DEFAULT CURRENT_TIMESTAMP,`LINK` INTEGER,`CONT` TEXT,`NOTE` TEXT,`STATUS` INTEGER);", NULL, NULL, &zErrMsg);
-			if (rc != SQLITE_OK) {
-				pBuff = "Êı¾İ¿â³õÊ¼»¯Ê§°Ü(" + to_string(rc) + "):" + zErrMsg;
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", pBuff.c_str());
+		else if (r == SQLITE_ROW) {
+			string dbCont = (char*)sqlite3_column_text(stmt0, 4);
+			pBuff = "è¯»åˆ°æ•°æ®åº“è¡¨è®°å½•â†’ " + dbCont;
+			CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", pBuff.c_str());
+			string orgSQL = SQL_init_eventTable;
+			if (orgSQL.find(dbCont) != string::npos) {
+				dbIscorrect = TRUE;
+				CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", "ä¸»æ•°æ®åº“è‡ªæ£€é€šè¿‡");
 			}
-			sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-			rc = sqlite3_exec(db, "CREATE TABLE `relationship` (`QQ` INTEGER NOT NULL UNIQUE,`Nickname` TEXT NOT NULL,`level` INTEGER NOT NULL,`amity` INTEGER NOT NULL,`from` TEXT,`note` TEXT,`lastActiv` NUMERIC DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(`QQ`));", NULL, NULL, &zErrMsg);
-			if (rc != SQLITE_OK) {
-				pBuff = "Êı¾İ¿â³õÊ¼»¯Ê§°Ü(" + to_string(rc) + "):" + zErrMsg;
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", pBuff.c_str());
-			}
-			sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-			rc = sqlite3_exec(db, "CREATE INDEX `Activ` ON `relationship` (`lastActiv` DESC);", NULL, NULL, &zErrMsg);
-			if (rc != SQLITE_OK) {
-				pBuff = "Êı¾İ¿â³õÊ¼»¯Ê§°Ü(" + to_string(rc) + "):" + zErrMsg;
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", pBuff.c_str());
-			}
-			sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-			rc = sqlite3_exec(db, "CREATE INDEX `power` ON `relationship` (`level` ASC);", NULL, NULL, &zErrMsg);
-			if (rc != SQLITE_OK) {
-				pBuff = "Êı¾İ¿â³õÊ¼»¯Ê§°Ü(" + to_string(rc) + "):" + zErrMsg;
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", pBuff.c_str());
-			}
-			sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-			rc = sqlite3_exec(db, "CREATE INDEX `priority` ON `event` (`STATUS` DESC);", NULL, NULL, &zErrMsg);
-			if (rc != SQLITE_OK) {
-				pBuff = "Êı¾İ¿â³õÊ¼»¯Ê§°Ü(" + to_string(rc) + "):" + zErrMsg;
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", pBuff.c_str());
-			}
-			sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-			sqlite3_free(zErrMsg);
 		}
 
-		char sql[] = { \
-"INSERT INTO `main`.`event`" \
-"(`TYPE`, `NOTE`, `STATUS`)"  \
-"VALUES(1003, 'app_on_Enable', 200); " };
+		sqlite3_finalize(stmt0);
+		stmt0 = NULL;
+		// ä¸Šé¢è¿™æ®µæ˜¯æŠ„æ¥çš„
+		
+		if (dbIscorrect != TRUE) {  // æ•°æ®åº“ä¸æ­£ç¡®é‚£å°±å¾—é‡æ–°å»ºç«‹éœ€è¦ç”¨åˆ°çš„è¡¨å’Œç´¢å¼•
+			CQ_addLog(ac, CQLOG_INFO, "æ•°æ®åº“", "å¼€å§‹å»ºè¡¨...");
+			sqlite3_stmt* stmt1 = NULL;
+			rc = sqlite3_prepare_v2(db, SQL_begin, -1, &stmt1, NULL);
+			if (rc != SQLITE_OK) {
+				if (stmt1 != NULL)
+					sqlite3_finalize(stmt1);
+				sqlite3_close(db);
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆå§‹åŒ–äº‹åŠ¡å¼€å¯å¤±è´¥");
+				return -1;
+			}
+			if (sqlite3_step(stmt1) != SQLITE_DONE) {
+				sqlite3_finalize(stmt1);
+				sqlite3_close(db);
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆå§‹åŒ–äº‹åŠ¡å¼€å¯å¤±è´¥");
+				return -1;
+			}
+			sqlite3_finalize(stmt1);
+			
+			sqlite3_stmt *stmt2;
+
+			if (sqlite3_prepare_v2(db, SQL_init_eventTable, -1, &stmt2, 0)) {
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆ›å»ºäº‹ä»¶è¡¨å¤±è´¥");
+				if (stmt2)
+					sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return -1;
+			}
+			if (sqlite3_step(stmt2) != SQLITE_DONE) {
+				sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return 1;
+			}
+			sqlite3_finalize(stmt2);
+
+			if (sqlite3_prepare_v2(db, SQL_init_relatTable, -1, &stmt2, 0)) {
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆ›å»ºäººé™…å…³ç³»è¡¨å¤±è´¥");
+				if (stmt2)
+					sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return -1;
+			}
+			if (sqlite3_step(stmt2) != SQLITE_DONE) {
+				sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return 1;
+			}
+			sqlite3_finalize(stmt2);
+
+			if (sqlite3_prepare_v2(db, SQL_init_priorIndex, -1, &stmt2, 0)) {
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆ›å»ºäº‹ä»¶æƒé‡ç´¢å¼•å¤±è´¥");
+				if (stmt2)
+					sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return -1;
+			}
+			if (sqlite3_step(stmt2) != SQLITE_DONE) {
+				sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return 1;
+			}
+			sqlite3_finalize(stmt2);
+
+			if (sqlite3_prepare_v2(db, SQL_init_powerIndex, -1, &stmt2, 0)) {
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆ›å»ºç”¨æˆ·æƒé™ç´¢å¼•å¤±è´¥");
+				if (stmt2)
+					sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return -1;
+			}
+			if (sqlite3_step(stmt2) != SQLITE_DONE) {
+				sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return 1;
+			}
+			sqlite3_finalize(stmt2);
+
+			if (sqlite3_prepare_v2(db, SQL_init_activeIndex, -1, &stmt2, 0)) {
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆ›å»ºäº‹ä»¶æ—¶é—´ç´¢å¼•å¤±è´¥");
+				if (stmt2)
+					sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return -1;
+			}
+			if (sqlite3_step(stmt2) != SQLITE_DONE) {
+				sqlite3_finalize(stmt2);
+				sqlite3_close(db);
+				return 1;
+			}
+			sqlite3_finalize(stmt2);
+
+			sqlite3_stmt* stmt3 = NULL;
+			if (sqlite3_prepare_v2(db, SQL_commit, -1, &stmt3, NULL)) {
+				if (stmt3)
+					sqlite3_finalize(stmt3);
+				sqlite3_close(db);
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“åˆå§‹åŒ–", "åˆå§‹åŒ–äº‹åŠ¡æäº¤å¤±è´¥");
+				return -1;
+			}
+			sqlite3_finalize(stmt3);
+
+			rc = sqlite3_exec(db, "COMMIT", NULL, NULL, NULL);
+			if (rc == SQLITE_OK) {
+				CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“(åˆå§‹åŒ–)", "æ•°æ®åº“åˆå§‹åŒ–æäº¤æˆåŠŸ");
+			}
+			else {
+				char hint[] = { "å› ä¸º%s,æ•°æ®åº“åˆå§‹åŒ–æäº¤å¤±è´¥(%d)" };
+				int len_buff = 10 + strlen(hint);
+				outbuff = (char*)malloc(len_buff + 8);
+				if (outbuff != NULL) {
+					sprintf_s(outbuff, len_buff, hint, zErrMsg, rc);
+					CQ_addLog(ac, CQLOG_FATAL, "æ•°æ®åº“(åˆå§‹åŒ–)", outbuff);
+					sqlite3_free(zErrMsg);
+				}
+				free(outbuff);
+				outbuff = NULL;
+				return -1;
+			}
+		}
+
+		const char *sql =  "INSERT INTO `main`.`event` (`TYPE`, `NOTE`, `STATUS`) VALUES(1003, 'app_on_Enable', 200); ";
 		rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
 		if (rc == SQLITE_OK) {
-			sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-			char hint[] = { "SQL(\n%s\n)Ö´ĞĞ³É¹¦" };
+			char hint[] = { "SQL(\n%s\n)æ‰§è¡ŒæˆåŠŸ" };
 			int len_buff = strlen(sql) + strlen(hint);
 			outbuff = (char*)malloc(len_buff + 8);
 			if (outbuff != NULL) {
 				sprintf_s(outbuff, len_buff, hint, sql);
-				CQ_addLog(ac, CQLOG_DEBUG, "Êı¾İ¿â", outbuff);
+				CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", outbuff);
 			}
 			free(outbuff);
 			outbuff = NULL;
 		}
 		else {
-			char hint[] = { "ÒòÎª%s,\nSQL(\n%s\n)Ö´ĞĞÊ§°Ü" };
+			char hint[] = { "å› ä¸º%s,\nSQL(\n%s\n)æ‰§è¡Œå¤±è´¥" };
 			int len_buff = strlen(sql) + strlen(hint);
 			outbuff = (char*)malloc(len_buff + 8);
 			if (outbuff != NULL) {
 				sprintf_s(outbuff, len_buff, hint, zErrMsg, sql);
-				CQ_addLog(ac, CQLOG_ERROR, "Êı¾İ¿â", outbuff);
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“", outbuff);
 				sqlite3_free(zErrMsg);
 			}
 			free(outbuff);
@@ -263,10 +389,15 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		}
 	}
 	else {
-		pBuff = "Êı¾İ¿âÁ¬½ÓÊ§°Ü(" + to_string(rc) + ")";
-		CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", pBuff.c_str());
+		pBuff = "æ•°æ®åº“è¿æ¥å¤±è´¥(" + to_string(rc) + ")";
+		CQ_addLog(ac, CQLOG_ERROR, "è¿è¡Œç¯å¢ƒ", pBuff.c_str());
 	}
 
+	if (db != NULL) {
+		sqlite3_close(db);
+		db = NULL;
+	}
+	
 	respons("on_Enable");
 
 	thread Timer60s(respTimer);
@@ -277,59 +408,92 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 
 
 /*
-* Type=1004 Ó¦ÓÃ½«±»Í£ÓÃ
-* µ±Ó¦ÓÃ±»Í£ÓÃÇ°£¬½«ÊÕµ½´ËÊÂ¼ş¡£
-* Èç¹û¿áQÔØÈëÊ±Ó¦ÓÃÒÑ±»Í£ÓÃ£¬Ôò±¾º¯Êı*²»»á*±»µ÷ÓÃ¡£
-* ÎŞÂÛ±¾Ó¦ÓÃÊÇ·ñ±»ÆôÓÃ£¬¿áQ¹Ø±ÕÇ°±¾º¯Êı¶¼*²»»á*±»µ÷ÓÃ¡£
+* Type=1004 åº”ç”¨å°†è¢«åœç”¨
+* å½“åº”ç”¨è¢«åœç”¨å‰ï¼Œå°†æ”¶åˆ°æ­¤äº‹ä»¶ã€‚
+* å¦‚æœé…·Qè½½å…¥æ—¶åº”ç”¨å·²è¢«åœç”¨ï¼Œåˆ™æœ¬å‡½æ•°*ä¸ä¼š*è¢«è°ƒç”¨ã€‚
+* æ— è®ºæœ¬åº”ç”¨æ˜¯å¦è¢«å¯ç”¨ï¼Œé…·Qå…³é—­å‰æœ¬å‡½æ•°éƒ½*ä¸ä¼š*è¢«è°ƒç”¨ã€‚
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
+
+	if (db == NULL)
+		sqlite3_open(dbPath.c_str(), &db);
+
+	char buff[256];
+	FILE* flog;
+	time_t curTime = time(NULL);
+
+	string sql;
+	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`)"\
+		"VALUES(1003, 'æœ¬è½®å…±è§¦å‘" + to_string(GtmpCounter) + "æ¬¡', app_on_disable, 200); ";
+	sqlite3_exec(db, sql.c_str(), NULL, NULL, NULL);
+
+	pBuff = APPpath + "status.log";
+	fopen_s(&flog, pBuff.c_str(), "w");
+	if (flog != NULL) {
+		sprintf_s(buff, "0 %I64d", curTime);
+		fwrite(buff, 1, strlen(buff), flog);
+		fclose(flog);
+	}
+	if (db != NULL) {
+		sqlite3_close(db);
+		db = NULL;
+	}
 	return 0;
 }
 
 
 /*
-* Type=21 Ë½ÁÄÏûÏ¢
-* subType ×ÓÀàĞÍ£¬11/À´×ÔºÃÓÑ 1/À´×ÔÔÚÏß×´Ì¬ 2/À´×ÔÈº 3/À´×ÔÌÖÂÛ×é
+* Type=21 ç§èŠæ¶ˆæ¯
+* subType å­ç±»å‹ï¼Œ11/æ¥è‡ªå¥½å‹ 1/æ¥è‡ªåœ¨çº¿çŠ¶æ€ 2/æ¥è‡ªç¾¤ 3/æ¥è‡ªè®¨è®ºç»„
 */
 
-// Ö÷ÒªµÄÓ¦´ğ»Ø¸´ÊÇÓÉºó¶ËÉú³ÉµÄ, ÕâÀïÖ»Õë¶ÔË½ÁÄºÍÈº°¬ÌØÕâÑù¸ßÓÅÏÈ¼¶µÄÊÂ¼ş×öÒ»Ğ©×ª·¢ºÍÖ¸Áî´¦Àí.
+// ä¸»è¦çš„åº”ç­”å›å¤æ˜¯ç”±åç«¯ç”Ÿæˆçš„, è¿™é‡Œåªé’ˆå¯¹ç§èŠå’Œç¾¤è‰¾ç‰¹è¿™æ ·é«˜ä¼˜å…ˆçº§çš„äº‹ä»¶åšä¸€äº›è½¬å‘å’ŒæŒ‡ä»¤å¤„ç†.
 
 CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t fromQQ, const char *msg, int32_t font) {
 
-	//Èç¹ûÒª»Ø¸´ÏûÏ¢£¬Çëµ÷ÓÃ¿áQ·½·¨·¢ËÍ£¬²¢ÇÒÕâÀï return EVENT_BLOCK - ½Ø¶Ï±¾ÌõÏûÏ¢£¬²»ÔÙ¼ÌĞø´¦Àí  ×¢Òâ£ºÓ¦ÓÃÓÅÏÈ¼¶ÉèÖÃÎª"×î¸ß"(10000)Ê±£¬²»µÃÊ¹ÓÃ±¾·µ»ØÖµ
-	//Èç¹û²»»Ø¸´ÏûÏ¢£¬½»ÓÉÖ®ºóµÄÓ¦ÓÃ/¹ıÂËÆ÷´¦Àí£¬ÕâÀï return EVENT_IGNORE - ºöÂÔ±¾ÌõÏûÏ¢
+	//å¦‚æœè¦å›å¤æ¶ˆæ¯ï¼Œè¯·è°ƒç”¨é…·Qæ–¹æ³•å‘é€ï¼Œå¹¶ä¸”è¿™é‡Œ return EVENT_BLOCK - æˆªæ–­æœ¬æ¡æ¶ˆæ¯ï¼Œä¸å†ç»§ç»­å¤„ç†  æ³¨æ„ï¼šåº”ç”¨ä¼˜å…ˆçº§è®¾ç½®ä¸º"æœ€é«˜"(10000)æ—¶ï¼Œä¸å¾—ä½¿ç”¨æœ¬è¿”å›å€¼
+	//å¦‚æœä¸å›å¤æ¶ˆæ¯ï¼Œäº¤ç”±ä¹‹åçš„åº”ç”¨/è¿‡æ»¤å™¨å¤„ç†ï¼Œè¿™é‡Œ return EVENT_IGNORE - å¿½ç•¥æœ¬æ¡æ¶ˆæ¯
 
 	string cmd = msg;
 	int32_t id = msgId;
 	
+	if (blackList.find(to_string(fromQQ)) != string::npos)
+		return EVENT_BLOCK;
 
 	if (fromQQ == AdminQQ) {
 
-		if (cmd.find("ÃüÁîÄ£Ê½") != string::npos) {
+		if (cmd.find("å‘½ä»¤æ¨¡å¼") != string::npos) {
 			if (DEVflag == 233) {
-				if (cmd.find("ÍË³ö") != string::npos) {
+				if (cmd.find("é€€å‡º") != string::npos) {
 					DEVflag = -1;
-					CQ_sendPrivateMsg(ac, fromQQ, "ÒÑÍË³öÃüÁîÄ£Ê½");
+					CQ_sendPrivateMsg(ac, fromQQ, "å·²é€€å‡ºå‘½ä»¤æ¨¡å¼");
 					return EVENT_BLOCK;
 				}
-				else
-					CQ_sendPrivateMsg(ac, fromQQ, "ÒÑ´¦ÓÚÃüÁîÄ£Ê½, ·¢ËÍÍË³öÀ´ÍË³ö");
+				else {
+					CQ_sendPrivateMsg(ac, fromQQ, "å·²å¤„äºå‘½ä»¤æ¨¡å¼, å‘é€é€€å‡ºæ¥é€€å‡º");
+					return EVENT_BLOCK;
+				}	
 			}
-			if (cmd.find("½øÈë") != string::npos && DEVflag == -1) {
+			if (cmd.find("è¿›å…¥") != string::npos && DEVflag == -1) {
 				DEVflag = 233;
-				CQ_sendPrivateMsg(ac, fromQQ, "ÒÑ½øÈëÃüÁîÄ£Ê½");
+				CQ_sendPrivateMsg(ac, fromQQ, "å·²è¿›å…¥å‘½ä»¤æ¨¡å¼");
 				return EVENT_BLOCK;
 			}
 		}
 
 		if (DEVflag == 233) {
-			bool isExeced;
-			isExeced = cmdExec(msg);
-			if (isExeced == OK)
-				CQ_sendPrivateMsg(ac, fromQQ, "ÃüÁîÒÑÖ´ĞĞ");
-			else
-				CQ_sendPrivateMsg(ac, fromQQ, "ÃüÁîÖ´ĞĞÊ§°Ü");
+			int status;
+			char buff[128];
+			status = cmdExec(msg);
+			if (status >= OK) {
+				sprintf_s(buff, "å‘½ä»¤æ‰§è¡ŒæˆåŠŸ(%d)", status);
+				CQ_sendPrivateMsg(ac, fromQQ, buff);
+			}
+			else {
+				sprintf_s(buff, "å‘½ä»¤å·²æ‰§è¡Œ, ä½†ä¸ç¡®å®šç»“æœ(%d)", status);
+				CQ_sendPrivateMsg(ac, fromQQ, buff);
+			}
 			return EVENT_BLOCK;
 		}
 			
@@ -337,115 +501,112 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 		smatch result;
 		char buff[2048];
 
-		if (cmd.find("µ¥ĞĞ") < 16 && cmd.find(':') != string::npos) {
-			unsigned int pos;
-			pos = cmd.find(':');
-	
-			sprintf_s(buff, 2047,"¹ÜÀíÔ±µ¥ĞĞË½ÁÄÄ£Ê½:%s³¤%d×Ö·û, ÄÚÈİ¡ú\n%s", cmd.c_str(), cmd.length(), cmd.substr(pos).c_str());
-			CQ_addLog(ac, CQLOG_INFO, "¹ÜÀí²Ù×÷", buff);
-
-			if (regex_search(cmd, result, parm1)) 
-				toQQ = stoll(result.str(), 0, 10);
-			if (toQQ != -1 && (cmd.size() > pos)) 
-				CQ_sendPrivateMsg(ac, toQQ, cmd.substr(pos + 1).c_str());
-			else {
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", "Ö¸Áî·ÖÎöÊ§°Ü");
-				pBuff = "ÄÚÈİ(\n" + cmd.substr(pos + 1) + "\n)·¢ËÍÊ§°Ü";
-				CQ_sendPrivateMsg(ac, AdminQQ, pBuff.c_str());
-			}	
-		}
-
-		if ((cmd.find("½áÊø") < 6 || cmd.find("ÍË³ö") < 6) && Gflag != -1) {
-			if (Gflag == 233) {
+		if ((cmd.find("ç»“æŸ") < 6 || cmd.find("é€€å‡º") < 6) && adminConverFlag != -1) {
+			if (adminConverFlag == 233) {
 				toQQ = -1;
 				toGp = -1;
-				Gflag = -1;
-				CQ_sendPrivateMsg(ac, AdminQQ, "ÒÑÍË³ö¶Ô»°Ä£Ê½");
+				adminConverFlag = -1;
+				CQ_sendPrivateMsg(ac, AdminQQ, "å·²é€€å‡ºå¯¹è¯æ¨¡å¼");
 			}
 		}
 
-		if (Gflag == 233 && toQQ != -1) 
+		if (adminConverFlag == 233 && toQQ != -1) {
 			CQ_sendPrivateMsg(ac, toQQ, cmd.c_str());
-		if (Gflag == 233 && toGp != -1)
+			return EVENT_BLOCK;
+		}	
+		if (adminConverFlag == 233 && toGp != -1) {
 			CQ_sendGroupMsg(ac, toGp, cmd.c_str());
-
-		if (cmd.find("¶Ô»°") < 16 && Gflag == -1) {
+			return EVENT_BLOCK;
+		}
+			
+		if (cmd.find("å¯¹è¯") < 16 && adminConverFlag == -1) {
 			regex parm1("\\d{6,12}");
 			smatch result;
 			
 			if (regex_search(cmd, result, parm1)) {
-				if (cmd.find("Èº") < 16 && toGp == -1) {
+				if (cmd.find("ç¾¤") < 16 && toGp == -1) {
 					toQQ = -1;
 					toGp = stoll(result.str(), 0, 10);
-					sprintf_s(buff, 2047, "\n¹ÜÀíÔ±Óë %I64d µÄÈºÁÄ¶Ô»°¿ªÊ¼", toGp);
-					CQ_addLog(ac, CQLOG_INFO, "¹ÜÀí²Ù×÷", "½øÈëÈºÁÄ¶Ô»°Ä£Ê½");
-					CQ_sendPrivateMsg(ac, AdminQQ, "ÒÑ½øÈëÈºÁÄ¶Ô»°Ä£Ê½");
+					sprintf_s(buff, 2047, "\nç®¡ç†å‘˜ä¸ %I64d çš„ç¾¤èŠå¯¹è¯å¼€å§‹", toGp);
+					CQ_addLog(ac, CQLOG_INFO, "ç®¡ç†æ“ä½œ", "è¿›å…¥ç¾¤èŠå¯¹è¯æ¨¡å¼");
+					CQ_sendPrivateMsg(ac, AdminQQ, "å·²è¿›å…¥ç¾¤èŠå¯¹è¯æ¨¡å¼");
 				}
 				else if (toQQ == -1) {
 					toGp = -1;
 					toQQ = stoll(result.str(), 0, 10);
-					sprintf_s(buff, 2047, "\n¹ÜÀíÔ±Óë %I64d µÄË½ÁÄ¶Ô»°¿ªÊ¼", toQQ);
-					CQ_addLog(ac, CQLOG_INFO, "¹ÜÀí²Ù×÷", "½øÈëË½ÁÄ¶Ô»°Ä£Ê½");
-					CQ_sendPrivateMsg(ac, AdminQQ, "ÒÑ½øÈëË½ÁÄ¶Ô»°Ä£Ê½");
+					sprintf_s(buff, 2047, "\nç®¡ç†å‘˜ä¸ %I64d çš„ç§èŠå¯¹è¯å¼€å§‹", toQQ);
+					CQ_addLog(ac, CQLOG_INFO, "ç®¡ç†æ“ä½œ", "è¿›å…¥ç§èŠå¯¹è¯æ¨¡å¼");
+					CQ_sendPrivateMsg(ac, AdminQQ, "å·²è¿›å…¥ç§èŠå¯¹è¯æ¨¡å¼");
 				}
-				Gflag = 233;
+				adminConverFlag = 233;
 			}
 			else {
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", "Ö¸Áî·ÖÎöÊ§°Ü");
-				CQ_sendPrivateMsg(ac, AdminQQ, "Ö¸Áî·ÖÎöÊ§°Ü");
-				Gflag = -1;
+				CQ_addLog(ac, CQLOG_ERROR, "è¿è¡Œç¯å¢ƒ", "æŒ‡ä»¤åˆ†æå¤±è´¥");
+				CQ_sendPrivateMsg(ac, AdminQQ, "æŒ‡ä»¤åˆ†æå¤±è´¥");
+				adminConverFlag = -1;
 			}
 		}
 	}
-	else {// ±ğÈËË½ÁÄµÄÄÚÈİ¶¼×ª·¢µ½Ö÷ºÅ²¢×ª·¢Ö÷ºÅµÄÓ¦´ğ
-		// ²âÊÔ½×¶ÎÏÈÖ±½Ó×ª·¢
+	else {// åˆ«äººç§èŠçš„å†…å®¹éƒ½è½¬å‘åˆ°ä¸»å·å¹¶è½¬å‘ä¸»å·çš„åº”ç­”
+		// æµ‹è¯•é˜¶æ®µå…ˆç›´æ¥è½¬å‘
+
+		if (db == NULL) {
+			rc = sqlite3_open(dbPath.c_str(), &db);
+			pBuff = "æ•°æ®åº“è¿æ¥çŠ¶æ€â†’" + to_string(rc);
+			CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“(ç§èŠè®°å½•)", pBuff.c_str());
+		}
+
 		char* obuff = NULL;
 		char buff[256] = {'\0'};
 		int len_buff = 0;
 
-		char hint[] = { "À´×Ô%I64dµÄË½ÁÄÏûÏ¢:" };
-		sprintf_s(buff, 255, hint, fromQQ);
+		char hint[] = { "æ¥è‡ª%I64dçš„ç§èŠæ¶ˆæ¯(%d):" };
+		sprintf_s(buff, 255, hint, fromQQ, msgId);
 
 		CQ_sendPrivateMsg(ac, AdminQQ, buff);
 
-		// È»ºó´æµ½Êı¾İ¿âÀïÈÃºó¶Ë³ÌĞò´¦Àí
+		// ç„¶åå­˜åˆ°æ•°æ®åº“é‡Œè®©åç«¯ç¨‹åºå¤„ç†
 		string sql;
-
 		sql = "INSERT INTO `main`.`event` (`TYPE`, `LINK`, `CONT`, `NOTE`, `STATUS`)"\
-			"VALUES(6001," + to_string(id) + ", '" + G2U( cmd.substr(0, 128).c_str() ) + "', '" + G2U("À´×ÔË½ÁÄ, µ÷ÊÔ½×¶ÎÍ³Ò»ÈË¹¤×ª·¢") + "', 301); ";
+			"VALUES(6001," + to_string(id) + ", '" + G2U( cmd.substr(0, 128).c_str() ) + "', '" + G2U("æ¥è‡ªç§èŠ, è°ƒè¯•é˜¶æ®µç»Ÿä¸€äººå·¥è½¬å‘") + "', 301); ";
 
 		rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
 		if (rc == SQLITE_OK) {
-			sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-			char hint[] = { "\nSQL(\n%s\n)Ö´ĞĞ³É¹¦" };
+			
+			char hint[] = { "\nSQL(\n%s\n)æ‰§è¡ŒæˆåŠŸ" };
 			len_buff = sql.length() + strlen(hint);
 			obuff = (char*)malloc(len_buff + 8);
 			if (obuff != NULL) {
 				sprintf_s(obuff, len_buff, hint, sql.c_str());
-				CQ_addLog(ac, CQLOG_DEBUG, "Êı¾İ¿â", obuff);
+				CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", obuff);
 			}
 			free(obuff);
 			obuff = NULL;
 		}
 		else {
-			char hint[] = { "ÒòÎª%s,\nSQL(\n%s\n)Ö´ĞĞÊ§°Ü" };
+			char hint[] = { "å› ä¸º%s,\nSQL(\n%s\n)æ‰§è¡Œå¤±è´¥" };
 			len_buff = sql.length() + strlen(hint);
 			obuff = (char*)malloc(len_buff + 8);
 			if (obuff != NULL) {
 				sprintf_s(obuff, len_buff, hint, zErrMsg, sql);
-				CQ_addLog(ac, CQLOG_ERROR, "Êı¾İ¿â", obuff);
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“", obuff);
 				sqlite3_free(zErrMsg);
 			}
 			else
-				CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", "ÄÚ´æ·ÖÅäÊ§°Ü");
+				CQ_addLog(ac, CQLOG_ERROR, "è¿è¡Œç¯å¢ƒ", "å†…å­˜åˆ†é…å¤±è´¥");
 			free(obuff);
 			obuff = NULL;
 		}
 		free(obuff);
 		obuff = NULL;
 
+		if (db != NULL) {
+			sqlite3_close(db);
+			db = NULL;
+		}
 		CQ_sendPrivateMsg(ac, AdminQQ, cmd.c_str());
 	}
+
 	respons("on_PrivateMsg");
 
 	return EVENT_IGNORE;
@@ -453,150 +614,170 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 
 
 /*
-* Type=2 ÈºÏûÏ¢
+* Type=2 ç¾¤æ¶ˆæ¯
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
 
-	GroupCount += 1;
-	if (GroupCount > 50) {
-		GroupCount = 0;
+	GroupCounter += 1;
+	if (GroupCounter > 50) {
+		GroupCounter = 0;
 		respons("on_GroupMsgCounter");
 	}
 
 	string grpMsg = msg;
 
-	if (Gflag == 233 && toGp == fromGroup) {
-		pBuff = to_string(fromQQ) + ":\n" + grpMsg;
+	if (adminConverFlag == 233 && toGp == fromGroup) {
+		pBuff = to_string(fromQQ) + "(" + to_string(msgId) + "):\n" + grpMsg;
 		CQ_sendPrivateMsg(ac, AdminQQ, pBuff.c_str());
+		return EVENT_IGNORE;
 	}
 
 	if (grpMsg.find("[CQ:at,qq=") != string::npos) {
-		if (grpMsg.find("qq=616471607") != string::npos || grpMsg.find("qq=2154055060") != string::npos || grpMsg.find("qq=2139223150") != string::npos) {  // ÒÔºó×ö³É¶ÁÅäÖÃµÄ
-			CQ_sendGroupMsg(ac, fromGroup, "ß÷~");
+		if (grpMsg.find("qq=616471607") != string::npos || grpMsg.find("qq=2154055060") != string::npos || grpMsg.find("qq=2139223150") != string::npos) {  // ä»¥ååšæˆè¯»é…ç½®çš„
+			CQ_sendGroupMsg(ac, fromGroup, "å–µ~");
 
-			// ÔÚÈºÀï±»°¬ÌØµÄÄÚÈİ¶¼×ª·¢µ½Ö÷ºÅ²¢×ª·¢Ö÷ºÅµÄÓ¦´ğ
-			// ²âÊÔ½×¶ÎÏÈÖ±½Ó×ª·¢
+			// åœ¨ç¾¤é‡Œè¢«è‰¾ç‰¹çš„å†…å®¹éƒ½è½¬å‘åˆ°ä¸»å·å¹¶è½¬å‘ä¸»å·çš„åº”ç­”
+			// æµ‹è¯•é˜¶æ®µå…ˆç›´æ¥è½¬å‘
+
 			char* obuff = NULL;
 			char buff[256] = { '\0' };
 			int len_buff = 0;
 
-			char hint[] = { "À´×Ô%I64dÔÚÈº(%I64d)µÄ°¬ÌØ:" };
-			sprintf_s(buff, 255, hint, fromQQ, fromGroup);
+			char hint[] = { "æ¥è‡ª%I64dåœ¨ç¾¤(%I64d)çš„è‰¾ç‰¹(%d):" };
+			sprintf_s(buff, 255, hint, fromQQ, fromGroup, msgId);
 
 			CQ_sendPrivateMsg(ac, AdminQQ, buff);
 
-			// È»ºó´æµ½Êı¾İ¿âÀïÈÃºó¶Ë³ÌĞò´¦Àí
+			// ç„¶åå­˜åˆ°æ•°æ®åº“é‡Œè®©åç«¯ç¨‹åºå¤„ç†
+
+			if (db == NULL) {
+				rc = sqlite3_open(dbPath.c_str(), &db);
+				pBuff = "æ•°æ®åº“è¿æ¥çŠ¶æ€â†’" + to_string(rc);
+				CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“(ç¾¤è‰¾ç‰¹è®°å½•)", pBuff.c_str());
+			}
+
 			string sql;
 
 			sql = "INSERT INTO `main`.`event` (`TYPE`, `LINK`, `CONT`, `NOTE`, `STATUS`)"\
-				"VALUES(6002," + to_string(msgId) + ", '" + G2U(grpMsg.substr(0, 128).c_str()) + "', '" + G2U("À´×ÔÈº, µ÷ÊÔ½×¶ÎÍ³Ò»ÈË¹¤×ª·¢") + "', 301); ";
+				"VALUES(6002," + to_string(msgId) + ", '" + G2U(grpMsg.substr(0, 128).c_str()) + "', '" + G2U("æ¥è‡ªç¾¤è‰¾ç‰¹, è°ƒè¯•é˜¶æ®µç»Ÿä¸€äººå·¥è½¬å‘") + "', 301); ";
 
 			rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
 			if (rc == SQLITE_OK) {
-				sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-				char hint[] = { "\nSQL(\n%s\n)Ö´ĞĞ³É¹¦" };
+				// å¥½åƒä¸éœ€è¦å®ƒ? åŠ äº†è¿˜å…³é—­ä¸äº†? sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
+				char hint[] = { "\nSQL(\n%s\n)æ‰§è¡ŒæˆåŠŸ" };
 				len_buff = sql.length() + strlen(hint);
 				obuff = (char*)malloc(len_buff + 8);
 				if (obuff != NULL) {
 					sprintf_s(obuff, len_buff, hint, sql.c_str());
-					CQ_addLog(ac, CQLOG_DEBUG, "Êı¾İ¿â", obuff);
+					CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", obuff);
 				}
 				free(obuff);
 				obuff = NULL;
 			}
 			else {
-				char hint[] = { "ÒòÎª%s,\nSQL(\n%s\n)Ö´ĞĞÊ§°Ü" };
+				char hint[] = { "å› ä¸º%s,\nSQL(\n%s\n)æ‰§è¡Œå¤±è´¥" };
 				len_buff = sql.length() + strlen(hint);
 				obuff = (char*)malloc(len_buff + 8);
 				if (obuff != NULL) {
 					sprintf_s(obuff, len_buff, hint, zErrMsg, sql);
-					CQ_addLog(ac, CQLOG_ERROR, "Êı¾İ¿â", obuff);
+					CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“", obuff);
 					sqlite3_free(zErrMsg);
 				}
 				else
-					CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", "ÄÚ´æ·ÖÅäÊ§°Ü");
+					CQ_addLog(ac, CQLOG_ERROR, "è¿è¡Œç¯å¢ƒ", "å†…å­˜åˆ†é…å¤±è´¥");
 				free(obuff);
 				obuff = NULL;
 			}
 			free(obuff);
 			obuff = NULL;
 
+			if (db != NULL) {
+				sqlite3_close(db);
+				db = NULL;
+			}
+
 			CQ_sendPrivateMsg(ac, AdminQQ, grpMsg.c_str());
 			respons("on_GroupMsgAT");
 		}
 	}
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 
 /*
-* Type=4 ÌÖÂÛ×éÏûÏ¢
+* Type=4 è®¨è®ºç»„æ¶ˆæ¯
 */
-// ÌÖÂÛ×éËÆºõÒÑ¾­±»·ÏÆúÁË? Êµ¼Ê´´½¨¶àÈËÁÄÌì·¢ÏÖÒ²ËãÔÚÈºÏûÏ¢Àï
+// è®¨è®ºç»„ä¼¼ä¹å·²ç»è¢«åºŸå¼ƒäº†? å®é™…åˆ›å»ºå¤šäººèŠå¤©å‘ç°ä¹Ÿç®—åœ¨ç¾¤æ¶ˆæ¯é‡Œ
 CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t msgId, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
 
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 
 /*
-* Type=101 ÈºÊÂ¼ş-¹ÜÀíÔ±±ä¶¯
-* subType ×ÓÀàĞÍ£¬1/±»È¡Ïû¹ÜÀíÔ± 2/±»ÉèÖÃ¹ÜÀíÔ±
+* Type=101 ç¾¤äº‹ä»¶-ç®¡ç†å‘˜å˜åŠ¨
+* subType å­ç±»å‹ï¼Œ1/è¢«å–æ¶ˆç®¡ç†å‘˜ 2/è¢«è®¾ç½®ç®¡ç†å‘˜
 */
 CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t beingOperateQQ) {
 
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 
 /*
-* Type=102 ÈºÊÂ¼ş-Èº³ÉÔ±¼õÉÙ
-* subType ×ÓÀàĞÍ£¬1/ÈºÔ±Àë¿ª 2/ÈºÔ±±»Ìß 3/×Ô¼º(¼´µÇÂ¼ºÅ)±»Ìß
-* fromQQ ²Ù×÷ÕßQQ(½ösubTypeÎª2¡¢3Ê±´æÔÚ)
-* beingOperateQQ ±»²Ù×÷QQ
+* Type=102 ç¾¤äº‹ä»¶-ç¾¤æˆå‘˜å‡å°‘
+* subType å­ç±»å‹ï¼Œ1/ç¾¤å‘˜ç¦»å¼€ 2/ç¾¤å‘˜è¢«è¸¢ 3/è‡ªå·±(å³ç™»å½•å·)è¢«è¸¢
+* fromQQ æ“ä½œè€…QQ(ä»…subTypeä¸º2ã€3æ—¶å­˜åœ¨)
+* beingOperateQQ è¢«æ“ä½œQQ
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 
 /*
-* Type=103 ÈºÊÂ¼ş-Èº³ÉÔ±Ôö¼Ó
-* subType ×ÓÀàĞÍ£¬1/¹ÜÀíÔ±ÒÑÍ¬Òâ 2/¹ÜÀíÔ±ÑûÇë
-* fromQQ ²Ù×÷ÕßQQ(¼´¹ÜÀíÔ±QQ)
-* beingOperateQQ ±»²Ù×÷QQ(¼´¼ÓÈºµÄQQ)
+* Type=103 ç¾¤äº‹ä»¶-ç¾¤æˆå‘˜å¢åŠ 
+* subType å­ç±»å‹ï¼Œ1/ç®¡ç†å‘˜å·²åŒæ„ 2/ç®¡ç†å‘˜é‚€è¯·
+* fromQQ æ“ä½œè€…QQ(å³ç®¡ç†å‘˜QQ)
+* beingOperateQQ è¢«æ“ä½œQQ(å³åŠ ç¾¤çš„QQ)
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberIncrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 
 /*
-* Type=201 ºÃÓÑÊÂ¼ş-ºÃÓÑÒÑÌí¼Ó
+* Type=201 å¥½å‹äº‹ä»¶-å¥½å‹å·²æ·»åŠ 
 */
 CQEVENT(int32_t, __eventFriend_Add, 16)(int32_t subType, int32_t sendTime, int64_t fromQQ) {
 
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 
 /*
-* Type=301 ÇëÇó-ºÃÓÑÌí¼Ó
-* msg ¸½ÑÔ
-* responseFlag ·´À¡±êÊ¶(´¦ÀíÇëÇóÓÃ)
+* Type=301 è¯·æ±‚-å¥½å‹æ·»åŠ 
+* msg é™„è¨€
+* responseFlag åé¦ˆæ ‡è¯†(å¤„ç†è¯·æ±‚ç”¨)
 */
 CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, const char *responseFlag) {
 
 	//CQ_setFriendAddRequest(ac, responseFlag, REQUEST_ALLOW, "");
 	
+	if (db == NULL) {
+		rc = sqlite3_open(dbPath.c_str(), &db);
+		pBuff = "æ•°æ®åº“è¿æ¥çŠ¶æ€â†’" + to_string(rc);
+		CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", pBuff.c_str());
+	}
+
 	pBuff = CQ_getStrangerInfo(ac, fromQQ, TRUE);
-	CQ_addLog(ac, CQLOG_INFO, "ºÃÓÑÇëÇó", pBuff.c_str());
+	CQ_addLog(ac, CQLOG_INFO, "å¥½å‹è¯·æ±‚", pBuff.c_str());
 	CQ_setFriendAddRequest(ac, responseFlag, REQUEST_ALLOW, "");
 	
-	// ¼ÓºÃÓÑ¾ÍÖ±½ÓÍ¬Òâ, È»ºóĞ´Êı¾İ¿âÀïÈÃºó¶ËAI·ÖÎöÈË¼Ê¹ØÏµ
-	// levelÔ½Ğ¡È¨ÏŞÔ½¸ß, amityÔ½´óÔ½ÓÑºÃ. ³õÊ¼¸ø¸öÊÊÖĞÖµ, ÓÉºó¶ËAIµ÷Õû
+	// åŠ å¥½å‹å°±ç›´æ¥åŒæ„, ç„¶åå†™æ•°æ®åº“é‡Œè®©åç«¯AIåˆ†æäººé™…å…³ç³»
+	// levelè¶Šå°æƒé™è¶Šé«˜, amityè¶Šå¤§è¶Šå‹å¥½. åˆå§‹ç»™ä¸ªé€‚ä¸­å€¼, ç”±åç«¯AIè°ƒæ•´
 	string sql = "INSERT INTO `main`.`relationship` (`QQ`, `nickname`, `level`, `amity`) VALUES(" + to_string(fromQQ) + ", '" + pBuff.c_str() +"', 250, 10);";
 
 	int len_buff;
@@ -604,47 +785,51 @@ CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime
 
 	rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
 	if (rc == SQLITE_OK) {
-		sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
-		char hint[] = { "\nSQL(\n%s\n)Ö´ĞĞ³É¹¦" };
+		char hint[] = { "\nSQL(\n%s\n)æ‰§è¡ŒæˆåŠŸ" };
 		len_buff = sql.length() + strlen(hint);
 		obuff = (char*)malloc(len_buff + 8);
 		if (obuff != NULL) {
 			sprintf_s(obuff, len_buff, hint, sql.c_str());
-			CQ_addLog(ac, CQLOG_DEBUG, "Êı¾İ¿â", obuff);
+			CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“", obuff);
 		}
 		free(obuff);
 		obuff = NULL;
 	}
 	else {
-		char hint[] = { "ÒòÎª%s,\nSQL(\n%s\n)Ö´ĞĞÊ§°Ü" };
+		char hint[] = { "å› ä¸º%s,\nSQL(\n%s\n)æ‰§è¡Œå¤±è´¥" };
 		len_buff = sql.length() + strlen(hint);
 		obuff = (char*)malloc(len_buff + 8);
 		if (obuff != NULL) {
 			sprintf_s(obuff, len_buff, hint, zErrMsg, sql);
-			CQ_addLog(ac, CQLOG_ERROR, "Êı¾İ¿â", obuff);
+			CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“", obuff);
 			sqlite3_free(zErrMsg);
 		}
 		else
-			CQ_addLog(ac, CQLOG_ERROR, "ÔËĞĞ»·¾³", "ÄÚ´æ·ÖÅäÊ§°Ü");
+			CQ_addLog(ac, CQLOG_ERROR, "è¿è¡Œç¯å¢ƒ", "å†…å­˜åˆ†é…å¤±è´¥");
 		free(obuff);
 		obuff = NULL;
 	}
 	free(obuff);
 	obuff = NULL;
 
-	pBuff += "(" + to_string(fromQQ) + ")ÇëÇóÌí¼ÓºÃÓÑ, ¸½ÑÔ`" + msg + "`. ÒÑÄ¬ÈÏÍ¬Òâ.";
+	if (db != NULL) {
+		sqlite3_close(db);
+		db = NULL;
+	}
+
+	pBuff += "(" + to_string(fromQQ) + ")è¯·æ±‚æ·»åŠ å¥½å‹, é™„è¨€`" + msg + "`. å·²é»˜è®¤åŒæ„.";
 	CQ_sendPrivateMsg(ac, AdminQQ, pBuff.c_str());
 	respons("on_Request_AddFriend");
 
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 
 /*
-* Type=302 ÇëÇó-ÈºÌí¼Ó
-* subType ×ÓÀàĞÍ£¬1/ËûÈËÉêÇëÈëÈº 2/×Ô¼º(¼´µÇÂ¼ºÅ)ÊÜÑûÈëÈº
-* msg ¸½ÑÔ
-* responseFlag ·´À¡±êÊ¶(´¦ÀíÇëÇóÓÃ)
+* Type=302 è¯·æ±‚-ç¾¤æ·»åŠ 
+* subType å­ç±»å‹ï¼Œ1/ä»–äººç”³è¯·å…¥ç¾¤ 2/è‡ªå·±(å³ç™»å½•å·)å—é‚€å…¥ç¾¤
+* msg é™„è¨€
+* responseFlag åé¦ˆæ ‡è¯†(å¤„ç†è¯·æ±‚ç”¨)
 */
 CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *msg, const char *responseFlag) {
 
@@ -656,28 +841,27 @@ CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime,
 
 	if (subType == 2) {
 		CQ_setGroupAddRequestV2(ac, responseFlag, REQUEST_GROUPINVITE, REQUEST_ALLOW, "");
-		// ÈºÑûÇë¾ÍÖ±½Ó¼ÓÈëÁË
+		// ç¾¤é‚€è¯·å°±ç›´æ¥åŠ å…¥äº†
 		pBuff = CQ_getStrangerInfo(ac, fromQQ, TRUE);
-		pBuff += "(" + to_string(fromQQ) + ")ÑûÇë¼ÓÈëÈº`" + to_string(fromGroup) + "`, ÒÑÄ¬ÈÏÍ¬Òâ";
+		pBuff += "(" + to_string(fromQQ) + ")é‚€è¯·åŠ å…¥ç¾¤`" + to_string(fromGroup) + "`, å·²é»˜è®¤åŒæ„";
 		CQ_sendPrivateMsg(ac, AdminQQ, pBuff.c_str());
 		respons("on_REQUEST_GROUPINVITE");
 	}
 		
-
-	return EVENT_IGNORE; //¹ØÓÚ·µ»ØÖµËµÃ÷, ¼û¡°_eventPrivateMsg¡±º¯Êı
+	return EVENT_IGNORE; //å…³äºè¿”å›å€¼è¯´æ˜, è§â€œ_eventPrivateMsgâ€å‡½æ•°
 }
 
 /*
-* ²Ëµ¥£¬¿ÉÔÚ .json ÎÄ¼şÖĞÉèÖÃ²Ëµ¥ÊıÄ¿¡¢º¯ÊıÃû
-* Èç¹û²»Ê¹ÓÃ²Ëµ¥£¬ÇëÔÚ .json ¼°´Ë´¦É¾³ıÎŞÓÃ²Ëµ¥
+* èœå•ï¼Œå¯åœ¨ .json æ–‡ä»¶ä¸­è®¾ç½®èœå•æ•°ç›®ã€å‡½æ•°å
+* å¦‚æœä¸ä½¿ç”¨èœå•ï¼Œè¯·åœ¨ .json åŠæ­¤å¤„åˆ é™¤æ— ç”¨èœå•
 */
 CQEVENT(int32_t, __menuA, 0)() {
-	MessageBoxA(NULL, "ÕâÊÇmenuA£¬ÔÚÕâÀïÔØÈë´°¿Ú£¬»òÕß½øĞĞÆäËû¹¤×÷¡£", "" ,0);
+	MessageBoxA(NULL, "è¿™æ˜¯menuAï¼Œåœ¨è¿™é‡Œè½½å…¥çª—å£ï¼Œæˆ–è€…è¿›è¡Œå…¶ä»–å·¥ä½œã€‚", "" ,0);
 	return 0;
 }
 
 CQEVENT(int32_t, __menuB, 0)() {
-	MessageBoxA(NULL, "ÕâÊÇmenuB£¬ÔÚÕâÀïÔØÈë´°¿Ú£¬»òÕß½øĞĞÆäËû¹¤×÷¡£", "" ,0);
+	MessageBoxA(NULL, "è¿™æ˜¯menuBï¼Œåœ¨è¿™é‡Œè½½å…¥çª—å£ï¼Œæˆ–è€…è¿›è¡Œå…¶ä»–å·¥ä½œã€‚", "" ,0);
 	return 0;
 }
 
@@ -687,24 +871,78 @@ void respons(const char* eve) {
 		GtmpCounter += 1;
 		char buff[128];
 		int tmp = -1;
-		sprintf_s(buff, "±»¶¯´¥·¢(%s)³É¹¦", eve);
-		CQ_addLog(ac, CQLOG_DEBUG, "ºóÌ¨´¦Àí", buff);
+		sprintf_s(buff, "è¢«åŠ¨è§¦å‘(%s)æˆåŠŸ", eve);
+		CQ_addLog(ac, CQLOG_DEBUG, "åå°å¤„ç†", buff);
 
-
-
-		if (GtmpCounter < 10) { // ²âÊÔ¿áQ Pro°æÍæµÄ, Ë³ÊÖµã¸öÔŞ
-			tmp += CQ_sendLike(ac, 616471607);
-			tmp += CQ_sendLike(ac, AdminQQ);
-			if (tmp != 0)
-				GtmpCounter = 233;
-			_ltoa_s(tmp, buff, 10);
-			CQ_addLog(ac, CQLOG_DEBUG, "ÃûÆ¬ÔŞ", buff);
-		}
+		polling();
 	}
+	Time_lastTrigger = time(NULL);
 }
 
 void polling() {
-	// ÕâÀï´òËã¶¨Ê±ÂÖÑµÊı¾İ¿â, ²éÕÒ²¢´¦Àíºó¶Ë³ÌĞòµÄÖ¸Áî
+	// è¿™é‡Œæ‰“ç®—å®šæ—¶è½®è®­æ•°æ®åº“, æŸ¥æ‰¾å¹¶å¤„ç†åç«¯ç¨‹åºçš„æŒ‡ä»¤
+	// æŸ¥è¯¢æ•°æ®åº“é‡Œåç«¯ç¨‹åºç»™çš„æŒ‡ä»¤(çŠ¶æ€ç 233)å¹¶è§£é‡Šæ‰§è¡Œ, å¦‚æœæˆåŠŸåˆ™æŠŠçŠ¶æ€ç æ”¹ä¸º0, å¦åˆ™æ”¹ä¸º500
+
+	if (db == NULL) {
+		rc = sqlite3_open(dbPath.c_str(), &db);
+	}
+	
+	const char *sql = "SELECT `EID`, `CONT` from main.event WHERE STATUS = 233;";
+	sqlite3_stmt* stmt = NULL;
+	int status = -1;
+	char buff[256];
+	int res = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+	int affectedRows = 0;
+
+	if (res != SQLITE_OK) {
+		if (stmt != NULL) 
+			sqlite3_finalize(stmt);
+		sqlite3_close(db);
+		pBuff = "è¯»æ•°æ®åº“é”™è¯¯(" + to_string(rc) + "):";
+		CQ_addLog(ac, CQLOG_ERROR, "è¿è¡Œç¯å¢ƒ", pBuff.c_str());
+		return ;
+	}
+
+	CQ_addLog(ac, CQLOG_DEBUG, "æ•°æ®åº“è°ƒè¯•", "å¼€å§‹selectæ“ä½œ");
+
+	while (sqlite3_step(stmt) == SQLITE_ROW) {
+		affectedRows += 1;
+		CQ_addLog(ac, CQLOG_DEBUG, "å‘½ä»¤å¤„ç†", "æ‰¾åˆ°åç«¯å‘½ä»¤, å¼€å§‹å¤„ç†");
+		status = cmdExec( U2G( (char*)sqlite3_column_text(stmt, 1) ) );
+		if (status > OK) {
+			sprintf_s(buff, "UPDATE `event` SET `STATUS` = 0 , `note` = '%s exec successed(%d)' WHERE `EID` = %d", (char*)sqlite3_column_text(stmt, 1), status, sqlite3_column_int(stmt, 0));
+			rc = sqlite3_exec(db, buff, NULL, NULL, &zErrMsg);
+			if (rc != SQLITE_OK) {
+				sprintf_s(buff, "åç«¯å‘½ä»¤æ‰§è¡ŒæˆåŠŸ, ä½†æ•°æ®åº“æ›´æ–°å¤±è´¥(%d):%s", rc, zErrMsg);
+				CQ_addLog(ac, CQLOG_WARNING, "æ•°æ®åº“(å‘½ä»¤çŠ¶æ€)", buff);
+			}
+			else {
+				CQ_addLog(ac, CQLOG_INFOSUCCESS, "æ•°æ®åº“(å‘½ä»¤çŠ¶æ€)", "åç«¯å‘½ä»¤æ‰§è¡ŒæˆåŠŸ");
+			}
+
+		}
+		else{
+			sprintf_s(buff, "UPDATE `event` SET `STATUS` = 500 , `note` = '%s exec failed(%d)' WHERE `EID` = %d", (char*)sqlite3_column_text(stmt, 1), status, sqlite3_column_int(stmt, 0));
+			rc = sqlite3_exec(db, buff, NULL, NULL, &zErrMsg);
+			if (rc != SQLITE_OK) {
+				sprintf_s(buff, "åç«¯å‘½ä»¤æ‰§è¡Œå¤±è´¥, ä¸”æ®åº“æ›´æ–°å¤±è´¥(%d):%s", rc, zErrMsg);
+				CQ_addLog(ac, CQLOG_ERROR, "æ•°æ®åº“(å‘½ä»¤çŠ¶æ€)", buff);
+			}
+			CQ_addLog(ac, CQLOG_WARNING, "æŒ‡ä»¤æ‰§è¡Œ", "åç«¯æŒ‡ä»¤è§£ææ‰§è¡ŒæˆåŠŸ, ä½†æ‰§è¡Œæœªå¾—åˆ°æœŸæœ›çš„è¿”å›å€¼, ä¸ç¡®å®šæ‰§è¡Œæƒ…å†µ");
+		}
+	}
+	if (affectedRows) {
+		sprintf_s(buff, "æœ¬æ¬¡è§¦å‘æ‰§è¡Œäº† %d æ¡å‘½ä»¤", affectedRows);
+		CQ_addLog(ac, CQLOG_DEBUG, "åå°å¤„ç†", buff);
+	}
+	else {
+		CQ_addLog(ac, CQLOG_DEBUG, "åå°å¤„ç†", "æœªæ‰¾åˆ°åç«¯å‘½ä»¤, ç»§ç»­ç¡è§‰");
+	}
+	affectedRows = 0;
+	sqlite3_finalize(stmt);
+	sqlite3_close(db);
+	db = NULL;
+	
 }
 
 void respTimer() {
@@ -715,65 +953,67 @@ void respTimer() {
 }
 
 /*
-	ÕâÀïµÄÉè¼ÆÊÇ×öÒ»¸ö±í, Èı´óÀà¶¯×÷ÏÂÓĞ
+	æ ¹æ®è¯æ³•åˆ†ææŠŠè¯­å¥æ‰§è¡Œç›¸åº”çš„é…·Q API
 */
 
-bool cmdExec(const char * strCmd) {
+static int cmdExec(const char * strCmd) {
 	CQcmd cmd;
 	string command;
 	command = strCmd;
 	cmd = mainParse(command);
 
+	CQ_addLog(ac, CQLOG_DEBUG, "å‘½ä»¤è§£æ", strCmd);
+
 	if (cmd.status < 4 || cmd.status > 8) {
-		CQ_sendPrivateMsg(ac, AdminQQ, "ÃüÁîÓï·¨ÓĞÎó, ÎŞ·¨Ö´ĞĞ");
+		CQ_addLog(ac, CQLOG_DEBUG, "å‘½ä»¤è§£æ", "å‘½ä»¤è¯­æ³•æœ‰è¯¯, æ— æ³•æ‰§è¡Œ");
 		return Err;
 	}
 		
-	switch (cmd.cmdID)
+	switch (cmd.cmdID)             // cmdIDå¯¹åº”lex.cppä¸­keywordsçš„ç´¢å¼•
 	{
 	case 0:
 		if (cmd.toGrp != -1)
-			CQ_sendGroupMsg(ac, cmd.toGrp, cmd.content);
+			return CQ_sendGroupMsg(ac, cmd.toGrp, cmd.content);
 		else if (cmd.toPri != -1) {
 			if (cmd.content != "Err")
-				CQ_sendPrivateMsg(ac, cmd.toPri, cmd.content);
+				return CQ_sendPrivateMsg(ac, cmd.toPri, cmd.content);
 			if (cmd.flag == 100)
-				CQ_sendLike(ac, cmd.toPri);
+				return CQ_sendLike(ac, cmd.toPri);
 		}
 		break;
 		
 	case 1:
-		switch (cmd.subCmdID)
+		switch (cmd.subCmdID)     // subCmdIDå¯¹åº”MAIN.mdé‡Œçš„ç¤ºä¾‹é¡ºåº
 		{
 		case 0: 
-			CQ_deleteMsg(ac, cmd.action);
+			return CQ_deleteMsg(ac, cmd.action);
 			break;
 		case 1:
 			if (cmd.flag == 10)
-				CQ_setGroupKick(ac, cmd.toGrp, cmd.toPri, FALSE);
+				return CQ_setGroupKick(ac, cmd.toGrp, cmd.toPri, FALSE);
 			else if (cmd.flag == 233)
-				CQ_setGroupLeave(ac, cmd.toGrp, FALSE);
+				return CQ_setGroupLeave(ac, cmd.toGrp, FALSE);
 			break;
 		case 2:
 			if (cmd.flag == 22)
-				CQ_setGroupWholeBan(ac, cmd.toGrp, cmd.action);
+				return CQ_setGroupWholeBan(ac, cmd.toGrp, cmd.action);
 			else if (cmd.flag < 22)
-				CQ_setGroupBan(ac, cmd.toGrp, cmd.toPri, cmd.action);
+				return CQ_setGroupBan(ac, cmd.toGrp, cmd.toPri, cmd.action);
 			break;
 		case 3:
-			CQ_setGroupAnonymous(ac, cmd.toGrp, cmd.action);
+			return CQ_setGroupAnonymous(ac, cmd.toGrp, cmd.action);
 			break;
 		case 4:
-			CQ_setGroupCard(ac, cmd.toGrp, cmd.toPri, cmd.content);
+			return CQ_setGroupCard(ac, cmd.toGrp, cmd.toPri, cmd.content);
 			break;
 		case 5:
-			CQ_setGroupSpecialTitle(ac, cmd.toGrp, cmd.toPri, cmd.content, cmd.action);
+			return CQ_setGroupSpecialTitle(ac, cmd.toGrp, cmd.toPri, cmd.content, cmd.action);
 			break;
 		case 6:
-			// ¼ÓºÃÓÑ/¼ÓÈºÑûÇëÄ¬ÈÏÍ¬Òâ¾ÍÏÈ²»×öÁË
+			// åŠ å¥½å‹/åŠ ç¾¤é‚€è¯·é»˜è®¤åŒæ„å°±å…ˆä¸åšäº†
 			break;
 		case 7:
-			CQ_addLog(ac, CQLOG_INFO, "ºóÌ¨´¦Àí", cmd.content);
+			return CQ_addLog(ac, CQLOG_INFO, "åå°å¤„ç†", cmd.content);
 			break;
 		default:
 			break;
@@ -817,14 +1057,30 @@ bool cmdExec(const char * strCmd) {
 		default:
 			break;
 		}
+	case 4:
+		if (cmd.action > 10000) {
+			char buff[256];
+			blackList += to_string(cmd.action) + ", ";
+			sprintf_s(buff, "å·²å°†%sæ·»åŠ åˆ°é»‘åå•", to_string(cmd.action).c_str());
+			CQ_sendPrivateMsg(ac, AdminQQ, buff);
+		}
+		else if (cmd.action == -1) {
+			char buff[512];
+			if (blackList.length() < 256)
+				sprintf_s(buff, "å½“å‰é»‘åå•åˆ—è¡¨:\n%s", blackList.c_str());
+			else
+				sprintf_s(buff, "å½“å‰é»‘åå•åˆ—è¡¨:\n%s......", blackList.substr(0,256).c_str());
+			CQ_sendPrivateMsg(ac, AdminQQ, buff);
+		}
+		return OK;
 	default:
 		break;
 	}
-	return OK;
+	return Unkown;
 }
 
-// ÏÂÃæÕâ¶Î³­×Ôhttps://www.cnblogs.com/cyberarmy/p/10098649.html
-//UTF-8µ½GB2312µÄ×ª»»
+// ä¸‹é¢è¿™æ®µæŠ„è‡ªhttps://www.cnblogs.com/cyberarmy/p/10098649.html
+//UTF-8åˆ°GB2312çš„è½¬æ¢
 char* U2G(const char* utf8)
 {
 	int len = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
@@ -839,7 +1095,7 @@ char* U2G(const char* utf8)
 	return str;
 }
 
-//GB2312µ½UTF-8µÄ×ª»»
+//GB2312åˆ°UTF-8çš„è½¬æ¢
 char* G2U(const char* gb2312)
 {
 	int len = MultiByteToWideChar(CP_ACP, 0, gb2312, -1, NULL, 0);
@@ -853,4 +1109,4 @@ char* G2U(const char* gb2312)
 	if (wstr) delete[] wstr;
 	return str;
 }
-// ÉÏÃæÕâ¶Î³­×Ôhttps://www.cnblogs.com/cyberarmy/p/10098649.html
+// ä¸Šé¢è¿™æ®µæŠ„è‡ªhttps://www.cnblogs.com/cyberarmy/p/10098649.html

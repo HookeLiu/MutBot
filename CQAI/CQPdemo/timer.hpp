@@ -1,5 +1,5 @@
-/*
-	Ò»¸ö´ÓÍøÉÏ³­À´µÄ¼òµ¥TImerÀà, ÓÃÓÚ¶¨Ê±Ö´ÐÐÒ»¸öº¯Êý
+ï»¿/*
+	ä¸€ä¸ªä»Žç½‘ä¸ŠæŠ„æ¥çš„ç®€å•TImerç±», ç”¨äºŽå®šæ—¶æ‰§è¡Œä¸€ä¸ªå‡½æ•°
 */
 #pragma once
 #ifndef _TIMER_H_
@@ -93,7 +93,7 @@ private:
 
 #endif // !_TIMER_H_
 /*
-¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª
-°æÈ¨ÉùÃ÷£º±¾ÎÄÎªCSDN²©Ö÷¡¸Ì¤É¯ÐÐhyx¡¹µÄÔ­´´ÎÄÕÂ£¬×ñÑ­ CC 4.0 BY - SA °æÈ¨Ð­Òé£¬×ªÔØÇë¸½ÉÏÔ­ÎÄ³ö´¦Á´½Ó¼°±¾ÉùÃ÷¡£
-Ô­ÎÄÁ´½Ó£ºhttps ://blog.csdn.net/u012234115/article/details/89857431
+â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
+ç‰ˆæƒå£°æ˜Žï¼šæœ¬æ–‡ä¸ºCSDNåšä¸»ã€Œè¸èŽŽè¡Œhyxã€çš„åŽŸåˆ›æ–‡ç« ï¼Œéµå¾ª CC 4.0 BY - SA ç‰ˆæƒåè®®ï¼Œè½¬è½½è¯·é™„ä¸ŠåŽŸæ–‡å‡ºå¤„é“¾æŽ¥åŠæœ¬å£°æ˜Žã€‚
+åŽŸæ–‡é“¾æŽ¥ï¼šhttps ://blog.csdn.net/u012234115/article/details/89857431
 */
