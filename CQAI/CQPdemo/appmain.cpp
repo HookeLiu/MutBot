@@ -60,13 +60,12 @@ HANDLE g_event;
 HANDLE CQupdate_event;
 HANDLE AppExit_event;
 
-// 0-app主响应线程, 1-后端服务主线程, 2-计时器子线程, 3-app后端消息通信
-const int THREAD_NUM = 4;  
-
 const LPCWSTR Tigger = L"Global\\CQdbSync";
 const LPCWSTR Bakend = L"Global\\CQupdate";
 const LPCWSTR onExit= L"Global\\CQexit";
 
+// 0-app主响应线程, 1-后端服务主线程, 2-计时器子线程, 3-app后端消息通信
+const int THREAD_NUM = 4;
 HANDLE TdHandle[THREAD_NUM];
 DWORD ThreadId[THREAD_NUM];
 
@@ -227,9 +226,15 @@ CQEVENT(int32_t, __eventExit, 0)() {
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
 
-	g_event = CreateEvent(NULL, false, false, Tigger);
-	CQupdate_event = CreateEvent(NULL, false, false, Bakend);
-	AppExit_event = CreateEvent(NULL, false, false, onExit);
+	//g_event = CreateEvent(NULL, false, false, Tigger);
+
+	g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
+	if (g_event == NULL) {
+		pBuff = "触发事件打开失败(" + to_string(GetLastError()) + "). 可能是后台服务程序没有运行.";
+		CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
+	}
+	//CQupdate_event = CreateEvent(NULL, false, false, Bakend);
+	//AppExit_event = CreateEvent(NULL, false, false, onExit);
 
 	InitializeCriticalSection(&g_csVar);
 
@@ -909,9 +914,14 @@ CQEVENT(int32_t, __menuB, 0)() {
 }
 
 void respons(const char* eve) {
+	if (g_event == NULL) {
+		g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
+		pBuff = "尝试重新打开触发事件仍然失败(" + to_string(GetLastError()) + "). 请检查后端程序.";
+		CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
+	}
 	if (CQupdate_event)
 		SetEvent(CQupdate_event);
-	if (time(NULL) - Time_lastTrigger > 10) {
+	if (time(NULL) - Time_lastTrigger > 1) {
 		GtmpCounter += 1;
 		char buff[128];
 		int tmp = -1;
@@ -931,7 +941,7 @@ int respWaiter(time_t delay_ms) {
 	string hint = "on_Timer " + to_string(delayS) + "s";
 	DWORD waitFlag = 0;
 
-	if (g_event == nullptr) {
+	if (g_event == NULL) {
 		CQ_addLog(ac, CQLOG_FATAL, "运行环境", "设置事件失败或者已置退出状态");
 		return -1;
 	}
