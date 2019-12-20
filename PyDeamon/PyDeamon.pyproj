@@ -5,8 +5,7 @@
     <ProjectGuid>b7c6299f-0071-4dc8-91f5-7614a37cb4b6</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>PyDeamon.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>D:\Program Files (x86)\Python37-32\Lib\site-packages</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>PyDeamon</Name>
@@ -22,6 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="PyDeamon.py" />
+    <Compile Include="test.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

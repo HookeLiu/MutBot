@@ -25,3 +25,4 @@
 #include "timer.hpp"
 #include "lex.h"
 #include "dbStruct.h"
+#include <atlbase.h>

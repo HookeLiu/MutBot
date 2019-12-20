@@ -22,29 +22,30 @@
 #define Err      -1
 #define Unkown   0
 
+#define delayTimerInterval_ms 30000
+
 #pragma comment(lib,"Winmm.lib")
 
 using namespace std;
 
 sqlite3* db;
-char*    zErrMsg = NULL;
+char*    zErrMsg = nullptr;
 int      rc = -1, GroupCounter = 0, adminConverFlag = -1, DEVflag = -1;
 static uint64_t GtmpCounter = 0;
 uint64_t toQQ  = -1;
 uint64_t toGp = -1;
 
 void respons(const char* );
-void polling();
+DWORD WINAPI polling(LPVOID p);
 char* U2G(const char* );
 char* G2U(const char* );
-void respTimer();
 int cmdExec(const char* command);
-extern CQcmd mainParse(std::string cmd);
+int respWaiter(time_t delay_ms);
 
 string pBuff;
 string blackList;  // 黑名单, 以后做成读配置项的
 
-time_t CQSTATRTTIME = time(NULL);
+//time_t CQSTATRTTIME = time(NULL);
 
 time_t Time_lastTrigger;
 
@@ -53,6 +54,21 @@ static string APPpath, dbPath;
 
 int ac = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
+
+CRITICAL_SECTION g_csVar;
+HANDLE g_event;
+HANDLE CQupdate_event;
+HANDLE AppExit_event;
+
+// 0-app主响应线程, 1-后端服务主线程, 2-计时器子线程, 3-app后端消息通信
+const int THREAD_NUM = 4;  
+
+const LPCWSTR Tigger = L"Global\\CQdbSync";
+const LPCWSTR Bakend = L"Global\\CQupdate";
+const LPCWSTR onExit= L"Global\\CQexit";
+
+HANDLE TdHandle[THREAD_NUM];
+DWORD ThreadId[THREAD_NUM];
 
 
 /* 
@@ -94,7 +110,7 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 
 	}
 	
-	if (flog != NULL) {
+	if (flog) {
 		fseek(flog, 0, SEEK_END);
 		int len_file = (int)ftell(flog);
 		rewind(flog);
@@ -126,7 +142,7 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 			catch (const std::exception&) {
 
 			}
-			if (flog != NULL) {
+			if (flog) {
 				CQ_addLog(ac, CQLOG_INFOSUCCESS, "首次启动", "新建成功. 欢迎使用~");
 			}
 			else {
@@ -135,13 +151,13 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 			pBuff = "当前APP目录→" + APPpath;
 			CQ_addLog(ac, CQLOG_INFO, "运行环境", pBuff.c_str());
 	}
-	if(flog != NULL)
+	if(flog)
 		fclose(flog);
 
-	if (db != NULL) {
+	if (db) {
 		sqlite3_free(zErrMsg);
 		sqlite3_close(db);
-		db = NULL;
+		db = nullptr;
 	}
 
 	return 0;
@@ -154,11 +170,16 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 * 本函数调用完毕后，酷Q将很快关闭，请不要再通过线程等方式执行其他代码。
 */
 CQEVENT(int32_t, __eventExit, 0)() {
+	enabled = FALSE;
+
+	if (AppExit_event)
+		SetEvent(AppExit_event);
+	
 	char buff[256];
 	FILE* flog;
 	time_t curTime = time(NULL);
 
-	if (db == NULL) {
+	if (db == nullptr) {
 		sqlite3_open(dbPath.c_str(), &db);
 	}
 
@@ -169,16 +190,31 @@ CQEVENT(int32_t, __eventExit, 0)() {
 
 	pBuff = APPpath + "status.log";
 	fopen_s(&flog, pBuff.c_str(), "w");
-	if (flog != NULL) {
+	if (flog) {
 		sprintf_s(buff, "0 %I64d", curTime);
 		fwrite(buff, 1, strlen(buff), flog);
 		fclose(flog);
 	}
-	if (db != NULL) {
+	if (db) {
 		sqlite3_free(zErrMsg);
 		sqlite3_close(db);
-		db = NULL;
+		db = nullptr;
 	}
+
+	if (g_event) {
+		SetEvent(g_event);
+	}
+	if (CQupdate_event) {
+		CloseHandle(CQupdate_event);
+		CQupdate_event = nullptr;
+	}
+	if (AppExit_event) {
+		CloseHandle(AppExit_event);
+		AppExit_event = nullptr;
+	}
+		
+	DeleteCriticalSection(&g_csVar);
+
 	return 0;
 }
 
@@ -191,15 +227,21 @@ CQEVENT(int32_t, __eventExit, 0)() {
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
 
-	char *outbuff = NULL;
+	g_event = CreateEvent(NULL, false, false, Tigger);
+	CQupdate_event = CreateEvent(NULL, false, false, Bakend);
+	AppExit_event = CreateEvent(NULL, false, false, onExit);
+
+	InitializeCriticalSection(&g_csVar);
+
+	char *outbuff = nullptr;
 
 	dbPath = APPpath + "app.db";
-
 	
+	EnterCriticalSection(&g_csVar);
+
 	rc = sqlite3_open(dbPath.c_str(), &db);
 	pBuff = "数据库(" + dbPath + ")连接状态→" + to_string(rc);
 	CQ_addLog(ac, CQLOG_DEBUG, "数据库", pBuff.c_str());
-	
 
 	if ( rc == SQLITE_OK ) {
 		// 得先检查一下数据库是不是正确的, 不是的话就有可能是第一次使用, 就还得初始化一下
@@ -208,7 +250,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		char strFindTable[128];
 		const char* sqlIni = "SELECT * FROM `sqlite_master` where type = 'table' and name = 'event'";
 		sprintf_s(strFindTable, 127, sqlIni);
-		sqlite3_stmt* stmt0 = NULL;
+		sqlite3_stmt* stmt0 = nullptr;
 		if (sqlite3_prepare_v2(db, strFindTable, -1, &stmt0, NULL) != SQLITE_OK) {
 			if (stmt0) 
 				sqlite3_finalize(stmt0);
@@ -217,6 +259,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 			char buff[512];
 			sprintf_s(buff, "数据库(%s)已连接(状态%d), 但执行初始化查询(%s)失败(%d)→ %s", dbPath.c_str(), rc, sqlIni, errCode, sqlite3_errmsg(db));
 			CQ_addLog(ac, CQLOG_FATAL, "运行环境", buff);
+			LeaveCriticalSection(&g_csVar);
 			return -1;
 		}
 		int r = sqlite3_step(stmt0);
@@ -239,24 +282,25 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		}
 
 		sqlite3_finalize(stmt0);
-		stmt0 = NULL;
+		stmt0 = nullptr;
 		// 上面这段是抄来的
 		
 		if (dbIscorrect != TRUE) {  // 数据库不正确那就得重新建立需要用到的表和索引
 			CQ_addLog(ac, CQLOG_INFO, "数据库", "开始建表...");
-			sqlite3_stmt* stmt1 = NULL;
+			sqlite3_stmt* stmt1 = nullptr;
 			rc = sqlite3_prepare_v2(db, SQL_begin, -1, &stmt1, NULL);
 			if (rc != SQLITE_OK) {
-				if (stmt1 != NULL)
+				if (stmt1)
 					sqlite3_finalize(stmt1);
 				sqlite3_close(db);
 				CQ_addLog(ac, CQLOG_ERROR, "数据库初始化", "初始化事务开启失败");
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			if (sqlite3_step(stmt1) != SQLITE_DONE) {
 				sqlite3_finalize(stmt1);
 				sqlite3_close(db);
-				CQ_addLog(ac, CQLOG_ERROR, "数据库初始化", "初始化事务开启失败");
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			sqlite3_finalize(stmt1);
@@ -268,12 +312,14 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 				if (stmt2)
 					sqlite3_finalize(stmt2);
 				sqlite3_close(db);
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			if (sqlite3_step(stmt2) != SQLITE_DONE) {
 				sqlite3_finalize(stmt2);
 				sqlite3_close(db);
-				return 1;
+				LeaveCriticalSection(&g_csVar);
+				return -1;
 			}
 			sqlite3_finalize(stmt2);
 
@@ -282,12 +328,14 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 				if (stmt2)
 					sqlite3_finalize(stmt2);
 				sqlite3_close(db);
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			if (sqlite3_step(stmt2) != SQLITE_DONE) {
 				sqlite3_finalize(stmt2);
 				sqlite3_close(db);
-				return 1;
+				LeaveCriticalSection(&g_csVar);
+				return -1;
 			}
 			sqlite3_finalize(stmt2);
 
@@ -296,12 +344,14 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 				if (stmt2)
 					sqlite3_finalize(stmt2);
 				sqlite3_close(db);
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			if (sqlite3_step(stmt2) != SQLITE_DONE) {
 				sqlite3_finalize(stmt2);
 				sqlite3_close(db);
-				return 1;
+				LeaveCriticalSection(&g_csVar);
+				return -1;
 			}
 			sqlite3_finalize(stmt2);
 
@@ -310,12 +360,14 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 				if (stmt2)
 					sqlite3_finalize(stmt2);
 				sqlite3_close(db);
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			if (sqlite3_step(stmt2) != SQLITE_DONE) {
 				sqlite3_finalize(stmt2);
 				sqlite3_close(db);
-				return 1;
+				LeaveCriticalSection(&g_csVar);
+				return -1;
 			}
 			sqlite3_finalize(stmt2);
 
@@ -324,26 +376,30 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 				if (stmt2)
 					sqlite3_finalize(stmt2);
 				sqlite3_close(db);
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			if (sqlite3_step(stmt2) != SQLITE_DONE) {
 				sqlite3_finalize(stmt2);
 				sqlite3_close(db);
-				return 1;
+				LeaveCriticalSection(&g_csVar);
+				return -1;
 			}
 			sqlite3_finalize(stmt2);
 
-			sqlite3_stmt* stmt3 = NULL;
+			sqlite3_stmt* stmt3 = nullptr;
 			if (sqlite3_prepare_v2(db, SQL_commit, -1, &stmt3, NULL)) {
 				if (stmt3)
 					sqlite3_finalize(stmt3);
 				sqlite3_close(db);
 				CQ_addLog(ac, CQLOG_ERROR, "数据库初始化", "初始化事务提交失败");
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 			sqlite3_finalize(stmt3);
 
 			rc = sqlite3_exec(db, "COMMIT", NULL, NULL, NULL);
+
 			if (rc == SQLITE_OK) {
 				CQ_addLog(ac, CQLOG_DEBUG, "数据库(初始化)", "数据库初始化提交成功");
 			}
@@ -351,13 +407,14 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 				char hint[] = { "因为%s,数据库初始化提交失败(%d)" };
 				int len_buff = 10 + strlen(hint);
 				outbuff = (char*)malloc(len_buff + 8);
-				if (outbuff != NULL) {
+				if (outbuff) {
 					sprintf_s(outbuff, len_buff, hint, zErrMsg, rc);
 					CQ_addLog(ac, CQLOG_FATAL, "数据库(初始化)", outbuff);
 					sqlite3_free(zErrMsg);
 				}
 				free(outbuff);
-				outbuff = NULL;
+				outbuff = nullptr;
+				LeaveCriticalSection(&g_csVar);
 				return -1;
 			}
 		}
@@ -368,24 +425,24 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 			char hint[] = { "SQL(\n%s\n)执行成功" };
 			int len_buff = strlen(sql) + strlen(hint);
 			outbuff = (char*)malloc(len_buff + 8);
-			if (outbuff != NULL) {
+			if (outbuff) {
 				sprintf_s(outbuff, len_buff, hint, sql);
 				CQ_addLog(ac, CQLOG_DEBUG, "数据库", outbuff);
 			}
 			free(outbuff);
-			outbuff = NULL;
+			outbuff = nullptr;
 		}
 		else {
 			char hint[] = { "因为%s,\nSQL(\n%s\n)执行失败" };
 			int len_buff = strlen(sql) + strlen(hint);
 			outbuff = (char*)malloc(len_buff + 8);
-			if (outbuff != NULL) {
+			if (outbuff) {
 				sprintf_s(outbuff, len_buff, hint, zErrMsg, sql);
 				CQ_addLog(ac, CQLOG_ERROR, "数据库", outbuff);
 				sqlite3_free(zErrMsg);
 			}
 			free(outbuff);
-			outbuff = NULL;
+			outbuff = nullptr;
 		}
 	}
 	else {
@@ -393,17 +450,16 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
 	}
 
-	if (db != NULL) {
+	if (db) {
 		sqlite3_close(db);
-		db = NULL;
+		db = nullptr;
 	}
-	
+
+	LeaveCriticalSection(&g_csVar);
+
 	respons("on_Enable");
 
-	thread Timer60s(respTimer);
-	Timer60s.detach();
-
-	return 0;
+	return respWaiter(delayTimerInterval_ms);
 }
 
 
@@ -415,30 +471,6 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
-
-	if (db == NULL)
-		sqlite3_open(dbPath.c_str(), &db);
-
-	char buff[256];
-	FILE* flog;
-	time_t curTime = time(NULL);
-
-	string sql;
-	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`)"\
-		"VALUES(1003, '本轮共触发" + to_string(GtmpCounter) + "次', app_on_disable, 200); ";
-	sqlite3_exec(db, sql.c_str(), NULL, NULL, NULL);
-
-	pBuff = APPpath + "status.log";
-	fopen_s(&flog, pBuff.c_str(), "w");
-	if (flog != NULL) {
-		sprintf_s(buff, "0 %I64d", curTime);
-		fwrite(buff, 1, strlen(buff), flog);
-		fclose(flog);
-	}
-	if (db != NULL) {
-		sqlite3_close(db);
-		db = NULL;
-	}
 	return 0;
 }
 
@@ -550,13 +582,15 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 	else {// 别人私聊的内容都转发到主号并转发主号的应答
 		// 测试阶段先直接转发
 
-		if (db == NULL) {
+		EnterCriticalSection(&g_csVar);
+
+		if (db) {
 			rc = sqlite3_open(dbPath.c_str(), &db);
 			pBuff = "数据库连接状态→" + to_string(rc);
 			CQ_addLog(ac, CQLOG_DEBUG, "数据库(私聊记录)", pBuff.c_str());
 		}
 
-		char* obuff = NULL;
+		char* obuff = nullptr;
 		char buff[256] = {'\0'};
 		int len_buff = 0;
 
@@ -571,23 +605,23 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 			"VALUES(6001," + to_string(id) + ", '" + G2U( cmd.substr(0, 128).c_str() ) + "', '" + G2U("来自私聊, 调试阶段统一人工转发") + "', 301); ";
 
 		rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
+		LeaveCriticalSection(&g_csVar);
 		if (rc == SQLITE_OK) {
-			
 			char hint[] = { "\nSQL(\n%s\n)执行成功" };
 			len_buff = sql.length() + strlen(hint);
 			obuff = (char*)malloc(len_buff + 8);
-			if (obuff != NULL) {
+			if (obuff) {
 				sprintf_s(obuff, len_buff, hint, sql.c_str());
 				CQ_addLog(ac, CQLOG_DEBUG, "数据库", obuff);
 			}
 			free(obuff);
-			obuff = NULL;
+			obuff = nullptr;
 		}
 		else {
 			char hint[] = { "因为%s,\nSQL(\n%s\n)执行失败" };
 			len_buff = sql.length() + strlen(hint);
 			obuff = (char*)malloc(len_buff + 8);
-			if (obuff != NULL) {
+			if (obuff) {
 				sprintf_s(obuff, len_buff, hint, zErrMsg, sql);
 				CQ_addLog(ac, CQLOG_ERROR, "数据库", obuff);
 				sqlite3_free(zErrMsg);
@@ -595,14 +629,14 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 			else
 				CQ_addLog(ac, CQLOG_ERROR, "运行环境", "内存分配失败");
 			free(obuff);
-			obuff = NULL;
+			obuff = nullptr;
 		}
 		free(obuff);
-		obuff = NULL;
+		obuff = nullptr;
 
-		if (db != NULL) {
+		if (db) {
 			sqlite3_close(db);
-			db = NULL;
+			db = nullptr;
 		}
 		CQ_sendPrivateMsg(ac, AdminQQ, cmd.c_str());
 	}
@@ -639,7 +673,7 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 			// 在群里被艾特的内容都转发到主号并转发主号的应答
 			// 测试阶段先直接转发
 
-			char* obuff = NULL;
+			char* obuff = nullptr;
 			char buff[256] = { '\0' };
 			int len_buff = 0;
 
@@ -650,7 +684,9 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 
 			// 然后存到数据库里让后端程序处理
 
-			if (db == NULL) {
+			EnterCriticalSection(&g_csVar);
+
+			if (db == nullptr) {
 				rc = sqlite3_open(dbPath.c_str(), &db);
 				pBuff = "数据库连接状态→" + to_string(rc);
 				CQ_addLog(ac, CQLOG_DEBUG, "数据库(群艾特记录)", pBuff.c_str());
@@ -662,23 +698,25 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 				"VALUES(6002," + to_string(msgId) + ", '" + G2U(grpMsg.substr(0, 128).c_str()) + "', '" + G2U("来自群艾特, 调试阶段统一人工转发") + "', 301); ";
 
 			rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
+
+			LeaveCriticalSection(&g_csVar);
+
 			if (rc == SQLITE_OK) {
-				// 好像不需要它? 加了还关闭不了? sqlite3_exec(db, "COMMIT", NULL, NULL, &zErrMsg);
 				char hint[] = { "\nSQL(\n%s\n)执行成功" };
 				len_buff = sql.length() + strlen(hint);
 				obuff = (char*)malloc(len_buff + 8);
-				if (obuff != NULL) {
+				if (obuff) {
 					sprintf_s(obuff, len_buff, hint, sql.c_str());
 					CQ_addLog(ac, CQLOG_DEBUG, "数据库", obuff);
 				}
 				free(obuff);
-				obuff = NULL;
+				obuff = nullptr;
 			}
 			else {
 				char hint[] = { "因为%s,\nSQL(\n%s\n)执行失败" };
 				len_buff = sql.length() + strlen(hint);
 				obuff = (char*)malloc(len_buff + 8);
-				if (obuff != NULL) {
+				if (obuff) {
 					sprintf_s(obuff, len_buff, hint, zErrMsg, sql);
 					CQ_addLog(ac, CQLOG_ERROR, "数据库", obuff);
 					sqlite3_free(zErrMsg);
@@ -686,20 +724,21 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 				else
 					CQ_addLog(ac, CQLOG_ERROR, "运行环境", "内存分配失败");
 				free(obuff);
-				obuff = NULL;
+				obuff = nullptr;
 			}
 			free(obuff);
-			obuff = NULL;
+			obuff = nullptr;
 
-			if (db != NULL) {
+			if (db) {
 				sqlite3_close(db);
-				db = NULL;
+				db = nullptr;
 			}
 
 			CQ_sendPrivateMsg(ac, AdminQQ, grpMsg.c_str());
 			respons("on_GroupMsgAT");
 		}
 	}
+
 	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
 }
 
@@ -765,8 +804,10 @@ CQEVENT(int32_t, __eventFriend_Add, 16)(int32_t subType, int32_t sendTime, int64
 CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, const char *responseFlag) {
 
 	//CQ_setFriendAddRequest(ac, responseFlag, REQUEST_ALLOW, "");
+
+	EnterCriticalSection(&g_csVar);
 	
-	if (db == NULL) {
+	if (db == nullptr) {
 		rc = sqlite3_open(dbPath.c_str(), &db);
 		pBuff = "数据库连接状态→" + to_string(rc);
 		CQ_addLog(ac, CQLOG_DEBUG, "数据库", pBuff.c_str());
@@ -788,12 +829,12 @@ CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime
 		char hint[] = { "\nSQL(\n%s\n)执行成功" };
 		len_buff = sql.length() + strlen(hint);
 		obuff = (char*)malloc(len_buff + 8);
-		if (obuff != NULL) {
+		if (obuff) {
 			sprintf_s(obuff, len_buff, hint, sql.c_str());
 			CQ_addLog(ac, CQLOG_DEBUG, "数据库", obuff);
 		}
 		free(obuff);
-		obuff = NULL;
+		obuff = nullptr;
 	}
 	else {
 		char hint[] = { "因为%s,\nSQL(\n%s\n)执行失败" };
@@ -807,15 +848,17 @@ CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime
 		else
 			CQ_addLog(ac, CQLOG_ERROR, "运行环境", "内存分配失败");
 		free(obuff);
-		obuff = NULL;
+		obuff = nullptr;
 	}
 	free(obuff);
-	obuff = NULL;
+	obuff = nullptr;
 
-	if (db != NULL) {
+	if (db) {
 		sqlite3_close(db);
-		db = NULL;
+		db = nullptr;
 	}
+
+	LeaveCriticalSection(&g_csVar);
 
 	pBuff += "(" + to_string(fromQQ) + ")请求添加好友, 附言`" + msg + "`. 已默认同意.";
 	CQ_sendPrivateMsg(ac, AdminQQ, pBuff.c_str());
@@ -866,44 +909,81 @@ CQEVENT(int32_t, __menuB, 0)() {
 }
 
 void respons(const char* eve) {
-	time_t time_now = time(NULL);
-	if (time_now - Time_lastTrigger > 10) {
+	if (CQupdate_event)
+		SetEvent(CQupdate_event);
+	if (time(NULL) - Time_lastTrigger > 10) {
 		GtmpCounter += 1;
 		char buff[128];
 		int tmp = -1;
-		sprintf_s(buff, "被动触发(%s)成功", eve);
-		CQ_addLog(ac, CQLOG_DEBUG, "后台处理", buff);
 
-		polling();
+		if (eve != "onBackend") {
+			sprintf_s(buff, "被动触发(%s)成功", eve);
+			CQ_addLog(ac, CQLOG_DEBUG, "后台处理", buff);
+		}
+			
+		TdHandle[0] = CreateThread(NULL, 0, polling, NULL, NULL, &ThreadId[0]);
 	}
 	Time_lastTrigger = time(NULL);
 }
 
-void polling() {
+int respWaiter(time_t delay_ms) {
+	time_t delayS = delay_ms / 1000;
+	string hint = "on_Timer " + to_string(delayS) + "s";
+	DWORD waitFlag = 0;
+
+	if (g_event == nullptr) {
+		CQ_addLog(ac, CQLOG_FATAL, "运行环境", "设置事件失败或者已置退出状态");
+		return -1;
+	}
+
+	while (g_event) {
+		waitFlag = WaitForSingleObject(g_event, delay_ms);
+		if (enabled) {
+			if ( waitFlag == WAIT_TIMEOUT) {
+				respons(hint.c_str());
+			}
+			else {
+				CQ_addLog(ac, CQLOG_INFOSUCCESS, "后端控制", "主动触发(由后端服务)成功");
+				respons("onBackend");
+			}	
+		}
+		else {
+			CloseHandle(g_event);
+			g_event = nullptr;
+			break;
+		}
+	}
+	return 0;
+}
+
+DWORD WINAPI polling(LPVOID p) {
 	// 这里打算定时轮训数据库, 查找并处理后端程序的指令
 	// 查询数据库里后端程序给的指令(状态码233)并解释执行, 如果成功则把状态码改为0, 否则改为500
 
-	if (db == NULL) {
+	EnterCriticalSection(&g_csVar);
+
+	if (db == nullptr) {
 		rc = sqlite3_open(dbPath.c_str(), &db);
 	}
 	
 	const char *sql = "SELECT `EID`, `CONT` from main.event WHERE STATUS = 233;";
-	sqlite3_stmt* stmt = NULL;
+	sqlite3_stmt* stmt = nullptr;
 	int status = -1;
 	char buff[256];
 	int res = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	int affectedRows = 0;
 
 	if (res != SQLITE_OK) {
-		if (stmt != NULL) 
+		if (stmt) 
 			sqlite3_finalize(stmt);
 		sqlite3_close(db);
 		pBuff = "读数据库错误(" + to_string(rc) + "):";
 		CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
-		return ;
+		LeaveCriticalSection(&g_csVar);
+		return -1;
 	}
 
-	CQ_addLog(ac, CQLOG_DEBUG, "数据库调试", "开始select操作");
+	CQ_addLog(ac, CQLOG_DEBUG, "数据库调试", "开始select操作(SELECT `EID`, `CONT` from main.event WHERE STATUS = 233;)");
 
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
 		affectedRows += 1;
@@ -931,25 +1011,22 @@ void polling() {
 			CQ_addLog(ac, CQLOG_WARNING, "指令执行", "后端指令解析执行成功, 但执行未得到期望的返回值, 不确定执行情况");
 		}
 	}
+
+	LeaveCriticalSection(&g_csVar);
+
 	if (affectedRows) {
-		sprintf_s(buff, "本次触发执行了 %d 条命令", affectedRows);
+		sprintf_s(buff, "本次触发执行了 %d 条命令, 本次轮询处理线程(0x%p)退出. 开始睡觉...", affectedRows, TdHandle[0]);
 		CQ_addLog(ac, CQLOG_DEBUG, "后台处理", buff);
 	}
 	else {
-		CQ_addLog(ac, CQLOG_DEBUG, "后台处理", "未找到后端命令, 继续睡觉");
+		sprintf_s(buff, "未找到后端命令, 本次轮询处理线程(0x%p)退出. 继续睡觉...", TdHandle[0]);
+		CQ_addLog(ac, CQLOG_DEBUG, "后台处理", buff);
 	}
-	affectedRows = 0;
 	sqlite3_finalize(stmt);
 	sqlite3_close(db);
-	db = NULL;
-	
-}
-
-void respTimer() {
-	Timer timer;
-	timer.start(60000, bind(respons, "on_Timer60s"));
-	this_thread::sleep_for(chrono::hours(616471607));
-	timer.stop();
+	db = nullptr;
+	CloseHandle(TdHandle[0]);
+	return 0;
 }
 
 /*
