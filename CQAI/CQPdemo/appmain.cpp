@@ -941,23 +941,19 @@ int respWaiter(time_t delay_ms) {
 	string hint = "on_Timer " + to_string(delayS) + "s";
 	DWORD waitFlag = 0;
 
-	if (g_event == NULL) {
-		CQ_addLog(ac, CQLOG_FATAL, "运行环境", "设置事件失败或者已置退出状态");
-		return -1;
-	}
-
 	while (g_event) {
 		waitFlag = WaitForSingleObject(g_event, delay_ms);
 		if (enabled) {
 			if ( waitFlag == WAIT_TIMEOUT) {
 				respons(hint.c_str());
 			}
-			else {
+			else if ( waitFlag == WAIT_OBJECT_0){
 				CQ_addLog(ac, CQLOG_INFOSUCCESS, "后端控制", "主动触发(由后端服务)成功");
 				respons("onBackend");
 			}	
 		}
 		else {
+			CQ_addLog(ac, CQLOG_INFO, "运行环境", "响应程序已停止.可能是程序将要退出或者触发事件打开失败.");
 			CloseHandle(g_event);
 			g_event = nullptr;
 			break;
