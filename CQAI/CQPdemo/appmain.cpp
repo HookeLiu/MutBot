@@ -22,7 +22,7 @@
 #define Err      -1
 #define Unkown   0
 
-#define delayTimerInterval_ms 30000
+#define delayTimerInterval_ms 60000
 
 #pragma comment(lib,"Winmm.lib")
 
@@ -34,13 +34,15 @@ int      rc = -1, GroupCounter = 0, adminConverFlag = -1, DEVflag = -1;
 static uint64_t GtmpCounter = 0;
 uint64_t toQQ  = -1;
 uint64_t toGp = -1;
+bool IsCorrectClosedLastTime = true;
+uint8_t ErrorCounter = 0;
 
 void respons(const char* );
 DWORD WINAPI polling(LPVOID p);
 char* U2G(const char* );
 char* G2U(const char* );
 int cmdExec(const char* command);
-int respWaiter(time_t delay_ms);
+DWORD WINAPI respWaiter(LPVOID delay_ms);
 
 string pBuff;
 string blackList;  // 黑名单, 以后做成读配置项的
@@ -64,8 +66,8 @@ const LPCWSTR Tigger = L"Global\\CQdbSync";
 const LPCWSTR Bakend = L"Global\\CQupdate";
 const LPCWSTR onExit= L"Global\\CQexit";
 
-// 0-app主响应线程, 1-后端服务主线程, 2-计时器子线程, 3-app后端消息通信
-const int THREAD_NUM = 4;
+// 0-app主响应线程, 1-app后端消息通信子线程
+const int THREAD_NUM = 2;
 HANDLE TdHandle[THREAD_NUM];
 DWORD ThreadId[THREAD_NUM];
 
@@ -126,6 +128,12 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 			tim[10] = '\0';
 			sprintf_s(buff, "酷Q启动成功, 上次记录状态→%s, 上次记录时间→%s", sta, tim);
 			CQ_addLog(ac, CQLOG_DEBUG, "运行环境", buff);
+
+			if (sta[0] != '0') {    // 这说明上次未按期望的方式退出程序, 可能是酷Q重新加载应用, 为了防止上次残余的线程影响本次运行, 应该先做一些相关处理.
+				IsCorrectClosedLastTime = false;
+				sprintf_s( buff, "检测到上次未按期望的方式退出程序, 这可能会造成一些异常. 虽然程序设计了有限的容错机制, 但仍建议退出酷Q并等待%d秒后再重新启动酷Q", (delayTimerInterval_ms / 1000) );
+				CQ_addLog(ac, CQLOG_WARNING, "运行环境", buff);
+			}
 		}
 		fseek(flog, 0, SEEK_SET);
 		sprintf_s(buff, "1 %I64d", curTime);
@@ -169,23 +177,29 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 * 本函数调用完毕后，酷Q将很快关闭，请不要再通过线程等方式执行其他代码。
 */
 CQEVENT(int32_t, __eventExit, 0)() {
-	enabled = FALSE;
+	enabled = false;
 
 	if (AppExit_event)
 		SetEvent(AppExit_event);
-	
+
+	SetEvent(g_event);
+
 	char buff[256];
 	FILE* flog;
 	time_t curTime = time(NULL);
 
-	if (db == nullptr) {
-		sqlite3_open(dbPath.c_str(), &db);
-	}
+	rc = sqlite3_open(dbPath.c_str(), &db);
+	pBuff = "数据库(" + dbPath + ")连接状态→" + to_string(rc);
+	CQ_addLog(ac, CQLOG_DEBUG, "酷Q退出记录", pBuff.c_str());
 
 	string sql;
-	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`)"\
-		"VALUES(1003, '本次运行触发了 " + to_string(GtmpCounter) +" 次', CQ_on_EXIT, 200); ";
-	rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
+	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`) VALUES(1002, '本次运行共触发了 " + to_string(GtmpCounter) + " 次', 'CQ_on_EXIT', 200); ";
+	rc = sqlite3_exec(db, G2U(sql.c_str()), NULL, NULL, &zErrMsg);
+	if (rc != SQLITE_OK) {
+		sprintf_s(buff, "因为%s,\nSQL(\n%s\n)执行失败", zErrMsg, sql.c_str());
+		CQ_addLog(ac, CQLOG_ERROR, "退出记录", buff);
+		sqlite3_free(zErrMsg);
+	}
 
 	pBuff = APPpath + "status.log";
 	fopen_s(&flog, pBuff.c_str(), "w");
@@ -200,8 +214,17 @@ CQEVENT(int32_t, __eventExit, 0)() {
 		db = nullptr;
 	}
 
+	for (int tmp = 0; tmp < THREAD_NUM; tmp++) {
+		if (TdHandle[tmp]) {
+			CloseHandle(TdHandle[tmp]);
+			TdHandle[tmp] = nullptr;
+		}
+	}
+
 	if (g_event) {
 		SetEvent(g_event);
+		CloseHandle(g_event);
+		g_event = nullptr;
 	}
 	if (CQupdate_event) {
 		CloseHandle(CQupdate_event);
@@ -211,7 +234,7 @@ CQEVENT(int32_t, __eventExit, 0)() {
 		CloseHandle(AppExit_event);
 		AppExit_event = nullptr;
 	}
-		
+
 	DeleteCriticalSection(&g_csVar);
 
 	return 0;
@@ -225,7 +248,6 @@ CQEVENT(int32_t, __eventExit, 0)() {
 */
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
-
 	//g_event = CreateEvent(NULL, false, false, Tigger);
 
 	g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
@@ -273,7 +295,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		//只有SQLITE_DONE，对于SELECT查询而言，如果有数据返回SQLITE_ROW，当到达结果集末尾时则返回SQLITE_DONE。
 		if (r == SQLITE_DONE) {
 			dbIscorrect = FALSE;
-			CQ_addLog(ac, CQLOG_WARNING, "数据库", "没有找到数据表, 可能是第一次使用, 准备初始化数据库...");
+			CQ_addLog(ac, CQLOG_WARNING, "数据库", "没有找到数据表, 准备初始化数据库...");
 		}
 		else if (r == SQLITE_ROW) {
 			string dbCont = (char*)sqlite3_column_text(stmt0, 4);
@@ -464,7 +486,20 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 
 	respons("on_Enable");
 
-	return respWaiter(delayTimerInterval_ms);
+	if (IsCorrectClosedLastTime != true) {
+		enabled = false;
+		SetEvent(g_event);
+		this_thread::sleep_for(chrono::seconds(1));
+		ResetEvent(g_event);
+		enabled = true;
+	}
+	else {
+		ResetEvent(g_event);
+	}
+	time_t respTimerInver = delayTimerInterval_ms;
+	TdHandle[1] = CreateThread(NULL, 0, respWaiter, &respTimerInver, NULL, &ThreadId[1]);
+
+	return 0;
 }
 
 
@@ -476,6 +511,63 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
+
+	if (AppExit_event)
+		SetEvent(AppExit_event);
+
+	char buff[256];
+	FILE* flog;
+	time_t curTime = time(NULL);
+
+	rc = sqlite3_open(dbPath.c_str(), &db);
+	pBuff = "数据库(" + dbPath + ")连接状态→" + to_string(rc);
+	CQ_addLog(ac, CQLOG_DEBUG, "退出记录", pBuff.c_str());
+
+	string sql;
+	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`) VALUES(1004, '本次运行共触发了 " + to_string(GtmpCounter) + " 次', 'APP_on_disable', 200); ";
+	rc = sqlite3_exec(db, G2U(sql.c_str()), NULL, NULL, &zErrMsg);
+	if (rc != SQLITE_OK) {
+		sprintf_s(buff, "因为%s,\nSQL(\n%s\n)执行失败", zErrMsg, sql.c_str());
+		CQ_addLog(ac, CQLOG_ERROR, "APP退出记录", buff);
+		sqlite3_free(zErrMsg);
+	}
+
+	pBuff = APPpath + "status.log";
+	fopen_s(&flog, pBuff.c_str(), "w");
+	if (flog) {
+		sprintf_s(buff, "2 %I64d", curTime);
+		fwrite(buff, 1, strlen(buff), flog);
+		fclose(flog);
+	}
+	if (db) {
+		sqlite3_free(zErrMsg);
+		sqlite3_close(db);
+		db = nullptr;
+	}
+
+	for (int tmp = 0; tmp < THREAD_NUM; tmp++) {
+		if (TdHandle[tmp]) {
+			CloseHandle(TdHandle[tmp]);
+			TdHandle[tmp] = nullptr;
+		}
+	}
+
+	if (g_event) {
+		SetEvent(g_event);
+		CloseHandle(g_event);
+		g_event = nullptr;
+	}
+	if (CQupdate_event) {
+		CloseHandle(CQupdate_event);
+		CQupdate_event = nullptr;
+	}
+	if (AppExit_event) {
+		CloseHandle(AppExit_event);
+		AppExit_event = nullptr;
+	}
+
+	DeleteCriticalSection(&g_csVar);
+
 	return 0;
 }
 
@@ -658,10 +750,6 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
 
 	GroupCounter += 1;
-	if (GroupCounter > 50) {
-		GroupCounter = 0;
-		respons("on_GroupMsgCounter");
-	}
 
 	string grpMsg = msg;
 
@@ -673,7 +761,6 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 
 	if (grpMsg.find("[CQ:at,qq=") != string::npos) {
 		if (grpMsg.find("qq=616471607") != string::npos || grpMsg.find("qq=2154055060") != string::npos || grpMsg.find("qq=2139223150") != string::npos) {  // 以后做成读配置的
-			CQ_sendGroupMsg(ac, fromGroup, "喵~");
 
 			// 在群里被艾特的内容都转发到主号并转发主号的应答
 			// 测试阶段先直接转发
@@ -914,15 +1001,17 @@ CQEVENT(int32_t, __menuB, 0)() {
 }
 
 void respons(const char* eve) {
-	if (g_event == NULL) {
-		g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
-		pBuff = "尝试重新打开触发事件仍然失败(" + to_string(GetLastError()) + "). 请检查后端程序.";
-		CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
-	}
-	if (CQupdate_event)
-		SetEvent(CQupdate_event);
-	if (time(NULL) - Time_lastTrigger > 1) {
+	if (time(NULL) - Time_lastTrigger > 0) {
 		GtmpCounter += 1;
+
+		if (g_event == NULL) {
+			g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
+			pBuff = "尝试重新打开触发事件仍然失败(" + to_string(GetLastError()) + "). 请检查后端程序.";
+			CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
+		}
+		if (CQupdate_event)
+			SetEvent(CQupdate_event);
+
 		char buff[128];
 		int tmp = -1;
 
@@ -933,32 +1022,59 @@ void respons(const char* eve) {
 			
 		TdHandle[0] = CreateThread(NULL, 0, polling, NULL, NULL, &ThreadId[0]);
 	}
+	else{
+		ErrorCounter += 1;
+		CQ_addLog(ac, CQLOG_WARNING, "触发频率过高", "检测到不正常的触发间隔,不过也有可能是巧合.");
+	}
+	if (ErrorCounter > 5) {
+		CQ_addLog(ac, CQLOG_FATAL, "异常触发", "触发频率异常高");
+		CQ_setFatal(ac, "触发频率异常高");
+	}
+	if (GtmpCounter > 11 && GtmpCounter % 22 == 0) {
+		ErrorCounter = 0;
+	}
 	Time_lastTrigger = time(NULL);
 }
 
-int respWaiter(time_t delay_ms) {
-	time_t delayS = delay_ms / 1000;
-	string hint = "on_Timer " + to_string(delayS) + "s";
+DWORD WINAPI respWaiter(LPVOID delay_ms) {
+	time_t delayms = *(time_t *)delay_ms;
+	string hint = "on_Timer" + to_string(delayms / 1000) + "s";
 	DWORD waitFlag = 0;
+	int callFlag = 1 ;
+	char buff[300];
+
+	if (delayms < 10000 || delayms > 36000000) {
+		sprintf_s(buff, "响应子线程得到了错误的参数, 响应超时不应该小于10秒或大于1小时, 可实际却得到了参数\"%I64u\". 这可能是使用酷Q重新载入应用而本应用使用了事件等待造成的. 为了程序还能运行, 已将等待超时默认成了60秒, 如需正确使用程序请关闭酷Q并等待60秒再启动.", delayms);
+		CQ_addLog(ac, CQLOG_ERROR, "异常参数", buff);
+		CQ_sendPrivateMsg(ac, AdminQQ, buff);
+		delayms = 60000;
+		hint = "on_Timer60s";
+	}
 
 	while (g_event) {
-		waitFlag = WaitForSingleObject(g_event, delay_ms);
 		if (enabled) {
-			if ( waitFlag == WAIT_TIMEOUT) {
+			waitFlag = WaitForSingleObject(g_event, delayms);
+			callFlag = CQ_addLog(ac, CQLOG_DEBUG, "后端控制", "被后端触发或者等待超时");
+			if (callFlag != 0)
+				break;
+			if (waitFlag == WAIT_TIMEOUT && enabled) {
 				respons(hint.c_str());
 			}
-			else if ( waitFlag == WAIT_OBJECT_0){
+			else if (waitFlag == WAIT_OBJECT_0 && enabled) {
 				CQ_addLog(ac, CQLOG_INFOSUCCESS, "后端控制", "主动触发(由后端服务)成功");
 				respons("onBackend");
-			}	
+			}
+			else
+				break;
+			callFlag = 1;
 		}
 		else {
-			CQ_addLog(ac, CQLOG_INFO, "运行环境", "响应程序已停止.可能是程序将要退出或者触发事件打开失败.");
-			CloseHandle(g_event);
-			g_event = nullptr;
 			break;
 		}
 	}
+	if (g_event)
+		CloseHandle(g_event);
+	g_event = nullptr;
 	return 0;
 }
 

@@ -45,6 +45,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\Hooke\Documents\dev\MutBot\CQAI\CQPdemo\Release;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Hooke\Documents\dev\MutBot\CQAI\CQPdemo;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,6 +110,7 @@
     <Library Include="CQP.lib">
       <DeploymentContent>true</DeploymentContent>
     </Library>
+    <Library Include="sqlite3.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -62,5 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib" />
+    <Library Include="sqlite3.lib" />
   </ItemGroup>
 </Project>
