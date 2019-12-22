@@ -443,7 +443,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 			rc = sqlite3_exec(db, "COMMIT", NULL, NULL, NULL);
 
 			if (rc == SQLITE_OK) {
-				CQ_addLog(ac, CQLOG_DEBUG, "数据库(初始化)", "数据库初始化提交成功");
+				CQ_addLog(ac, CQLOG_INFOSUCCESS, "数据库(初始化)", "数据库初始化提交成功");
 			}
 			else {
 				char hint[] = { "因为%s,数据库初始化提交失败(%d)" };
