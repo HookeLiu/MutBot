@@ -1,3 +1,8 @@
+因为这一部分是基于[酷Q官方demo](https://github.com/CoolQ/cqsdk-vc)改的, 所以基本上是只加不改. 开发笔记和说明请另见此目录下的`notes`  
+以下是clone过来的原始内容  
+
+-------
+
 > 推荐 C++ 开发者选用以下 SDK，事件及 Api 的实现较本项目更为完善，更新更为及时：
 >
 > * [richardchien/coolq-cpp-sdk](https://github.com/richardchien/coolq-cpp-sdk)

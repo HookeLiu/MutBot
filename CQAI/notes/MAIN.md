@@ -20,10 +20,10 @@
 ```C++
 struct CQ_TYPE_QQ
 {
-        int64_t         QQID;        //QQ号
-        std::string    nick;        //昵称
-        int                 sex;        //性别
-        int                  age;        //年龄
+        int64_t        QQID;       //QQ号
+        std::string    nick;       //昵称
+        int            sex;        //性别
+        int            age;        //年龄
 };
 ```
 
@@ -56,21 +56,21 @@ struct CQ_TYPE_QQ
 ```C++
 struct CQ_Type_GroupMember
 {
-        int64_t            GroupID;                       // 群号
-        int64_t            QQID;                           // QQ号
-        std::string      nick;                               // QQ昵称
-        std::string      card;                               // 群名片
-        int                  sex;                              // 性别 0/男 1/女
-        int                  age;                               // 年龄
-        std::string      area;                               // 地区
-        int                   jointime;                       // 入群时间
-        int                  lastsent ;                         // 上次发言时间
-        std::string      level_name;                     // 头衔名字
-        int                  permission;                    // 权限等级 1/成员 2/管理员 3/群主
-        bool               unfriendly;                       // 不良成员记录
-        std::string      title;                                  // 自定义头衔
-        int                  titleExpiretime;                   // 头衔过期时间
-        bool               cardcanchange;                 // 管理员是否能协助改名
+        int64_t        GroupID;            // 群号
+        int64_t        QQID;               // QQ号
+        std::string    nick;               // QQ昵称
+        std::string    card;               // 群名片
+        int            sex;                // 性别 0/男 1/女
+        int            age;                // 年龄
+        std::string    area;               // 地区
+        int            jointime;           // 入群时间
+        int            lastsent ;          // 上次发言时间
+        std::string    level_name;         // 头衔名字
+        int            permission;         // 权限等级 1/成员 2/管理员 3/群主
+        bool           unfriendly;         // 不良成员记录
+        std::string    title;              // 自定义头衔
+        int            titleExpiretime;    // 头衔过期时间
+        bool           cardcanchange;      // 管理员是否能协助改名
 };
 ```
 
@@ -83,7 +83,7 @@ struct CQ_Type_GroupMember
 > 接下来2个字节，即一个short长度，token长度，目前看都是40字节；  
 > 接下来token长度个字节，token内容；  
 
-## SQLite 错误码对照
+## SQLite 连接错误码对照
 
 ```C
 #define SQLITE_OK           0   /* 成功 | Successful result */
@@ -118,31 +118,32 @@ struct CQ_Type_GroupMember
 #define SQLITE_DONE        101  /* sqlite3_step() 完成执行操作 | sqlite3_step() has finished executing */
 /* 错误码结束 */
 ```
+## ~~C++实现简易定时器(抄来的)~~
 
-## C++实现简易定时器(抄来的)
+~~头文件"timer.hpp"来自[CSDN](https://blog.csdn.net/u012234115/article/details/89857431)~~  
 
-头文件"timer.hpp"来自[CSDN](https://blog.csdn.net/u012234115/article/details/89857431)  
+~~示例用法:~~
+                                                                        ~~
+~~```C++~~                                                              ~~
+~~int main(int argc, char* argv[])                                      ~~
+~~{                                                                     ~~
+~~    Timer timer;                                                      ~~
+~~    // execute task every timer interval                              ~~
+~~    std::cout << "--- start period timer ----" << std::endl;          ~~
+~~    timer.start(1000, std::bind(func2, 3));                           ~~
+~~    std::this_thread::sleep_for(std::chrono::milliseconds(5000));     ~~
+~~    timer.stop();                                                     ~~
+~~    std::cout << "--- stop period timer ----" << std::endl;           ~~
+~~    // execute task once after delay                                  ~~
+~~    std::cout << "--- start one shot timer ----" << std::endl;        ~~
+~~    timer.startOnce(1000, func1);                                     ~~
+~~    std::cout << "--- stop one shot timer ----" << std::endl;         ~~
+~~    getchar();                                                        ~~
+~~    return 0;                                                         ~~
+~~}                                                                     ~~
+~~```~~
 
-示例用法:
-
-```C++
-int main(int argc, char* argv[])
-{
-    Timer timer;
-    // execute task every timer interval
-    std::cout << "--- start period timer ----" << std::endl;
-    timer.start(1000, std::bind(func2, 3));
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-    timer.stop();
-    std::cout << "--- stop period timer ----" << std::endl;
-    // execute task once after delay
-    std::cout << "--- start one shot timer ----" << std::endl;
-    timer.startOnce(1000, func1);
-    std::cout << "--- stop one shot timer ----" << std::endl;
-    getchar();
-    return 0;
-}
-```
+更新: 20 Dec. 2019  **取消了"抄来的C++实现简易定时器"**, 改用了win32event.  
 
 ## 数据库设计
 
@@ -165,7 +166,7 @@ type→事件的类型: 10xx系列预留给酷Q及APP运行环境相关内容; 5xxx为自定义事件, 如临
 link→对应的msgId: 如果事件和QQ消息有关, 那就去酷Q自己的日志库根据msgId找, 相当于给后端用的外键.  
 cont→交换内容: 主要设计是用于后端存放指令让前端读, 后端处理之前就放原始消息内容的片段(目前设计是128字符)以便调试.  
 note→备注/调试: 存放调试信息或者日志.  
-status→状态码: 数值越大越重要. 0-已经处理过; 200-正常且无需处理; 233-后端处理完成; 300-待回复群消息; 301-待回复私聊消息; 302-待处理请求; 400-继续等待; 401-待转发给管理员; 500-待调试  
+status→状态码: 数值越大越重要. 0-已经处理过; 200-正常且无需处理; 213-继续等待, 比如定时提醒之类的; 233-后端处理完成; 300-待回复群消息; 301-待回复私聊消息; 302-待处理请求; 401-待转发给管理员; 500-待调试  
 */
 ```
 
@@ -204,6 +205,8 @@ CREATE INDEX `priority` ON `event` ( `STATUS` DESC );
 优先处理重要的/高权限的/较新的消息
 
 ## 应答命令规则设计
+
+更新: 22 Dec. 2019 非常感谢[燕儿](https://github.com/JuYanYan)的帮助, 这一部分将会做成完善的解释器, 部分设计细节也会重构.
 
 后端程序以及人类管理员给酷Q API的命令应该尽可能精简/高可读性/适当容错性/方便在手机上输入.  
 打算按编译原理做一个简单的有限自动机来实现个表达式解释器.  

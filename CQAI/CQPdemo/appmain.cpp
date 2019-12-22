@@ -183,6 +183,10 @@ CQEVENT(int32_t, __eventExit, 0)() {
 		SetEvent(AppExit_event);
 
 	SetEvent(g_event);
+	if (g_event)
+		SetEvent(g_event);
+	if (g_event)
+		SetEvent(g_event);
 
 	char buff[256];
 	FILE* flog;
@@ -221,11 +225,11 @@ CQEVENT(int32_t, __eventExit, 0)() {
 		}
 	}
 
-	if (g_event) {
+	if (g_event)
 		SetEvent(g_event);
-		CloseHandle(g_event);
-		g_event = nullptr;
-	}
+	if (g_event)
+		SetEvent(g_event);
+	
 	if (CQupdate_event) {
 		CloseHandle(CQupdate_event);
 		CQupdate_event = nullptr;
@@ -249,6 +253,17 @@ CQEVENT(int32_t, __eventExit, 0)() {
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
 	//g_event = CreateEvent(NULL, false, false, Tigger);
+
+	FILE* flog;
+	char buff[128];
+	time_t curTime = time(NULL);
+	pBuff = APPpath + "status.log";
+	fopen_s(&flog, pBuff.c_str(), "w");
+	if (flog) {
+		sprintf_s(buff, "3 %I64d", curTime);
+		fwrite(buff, 1, strlen(buff), flog);
+		fclose(flog);
+	}
 
 	g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
 	if (g_event == NULL) {
@@ -489,7 +504,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	if (IsCorrectClosedLastTime != true) {
 		enabled = false;
 		SetEvent(g_event);
-		this_thread::sleep_for(chrono::seconds(1));
+		CQ_addLog(ac, CQLOG_DEBUG, "容错操作", "不确定是否有上次关闭时残余的事件等待, 强制清除.");
 		ResetEvent(g_event);
 		enabled = true;
 	}
@@ -619,9 +634,12 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 				sprintf_s(buff, "命令执行成功(%d)", status);
 				CQ_sendPrivateMsg(ac, fromQQ, buff);
 			}
-			else {
+			else if (status >= Unkown){
 				sprintf_s(buff, "命令已执行, 但不确定结果(%d)", status);
 				CQ_sendPrivateMsg(ac, fromQQ, buff);
+			}
+			else {
+				CQ_sendPrivateMsg(ac, fromQQ, "命令无法解析");
 			}
 			return EVENT_BLOCK;
 		}
@@ -1043,16 +1061,19 @@ DWORD WINAPI respWaiter(LPVOID delay_ms) {
 	int callFlag = 1 ;
 	char buff[300];
 
-	if (delayms < 10000 || delayms > 36000000) {
-		sprintf_s(buff, "响应子线程得到了错误的参数, 响应超时不应该小于10秒或大于1小时, 可实际却得到了参数\"%I64u\". 这可能是使用酷Q重新载入应用而本应用使用了事件等待造成的. 为了程序还能运行, 已将等待超时默认成了60秒, 如需正确使用程序请关闭酷Q并等待60秒再启动.", delayms);
-		CQ_addLog(ac, CQLOG_ERROR, "异常参数", buff);
-		CQ_sendPrivateMsg(ac, AdminQQ, buff);
-		delayms = 60000;
-		hint = "on_Timer60s";
-	}
-
 	while (g_event) {
 		if (enabled) {
+
+			if (delayms < 10000 || delayms > 36000000) {
+				SetEvent(g_event);
+				sprintf_s(buff, "响应子线程得到了错误的参数, 响应超时不应该小于10秒或大于1小时, 可实际却得到了参数\"%I64u\". 这可能是使用酷Q重新载入应用而本应用使用了事件等待造成的. 为了程序还能运行, 已将等待超时默认成了60秒, 如需正确使用程序请关闭酷Q并等待60秒再启动.", delayms);
+				CQ_addLog(ac, CQLOG_ERROR, "异常参数", buff);
+				CQ_sendPrivateMsg(ac, AdminQQ, buff);
+				delayms = 60000;
+				hint = "on_Timer60s";
+				ResetEvent(g_event);
+			}
+
 			waitFlag = WaitForSingleObject(g_event, delayms);
 			callFlag = CQ_addLog(ac, CQLOG_DEBUG, "后端控制", "被后端触发或者等待超时");
 			if (callFlag != 0)
@@ -1072,9 +1093,11 @@ DWORD WINAPI respWaiter(LPVOID delay_ms) {
 			break;
 		}
 	}
-	if (g_event)
+	if (g_event) {
+		ResetEvent(g_event);
 		CloseHandle(g_event);
-	g_event = nullptr;
+		g_event = nullptr;
+	}
 	return 0;
 }
 
