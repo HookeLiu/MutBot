@@ -123,27 +123,8 @@ struct CQ_Type_GroupMember
 ~~头文件"timer.hpp"来自[CSDN](https://blog.csdn.net/u012234115/article/details/89857431)~~  
 
 ~~示例用法:~~
-                                                                        ~~
-~~```C++~~                                                              ~~
-~~int main(int argc, char* argv[])                                      ~~
-~~{                                                                     ~~
-~~    Timer timer;                                                      ~~
-~~    // execute task every timer interval                              ~~
-~~    std::cout << "--- start period timer ----" << std::endl;          ~~
-~~    timer.start(1000, std::bind(func2, 3));                           ~~
-~~    std::this_thread::sleep_for(std::chrono::milliseconds(5000));     ~~
-~~    timer.stop();                                                     ~~
-~~    std::cout << "--- stop period timer ----" << std::endl;           ~~
-~~    // execute task once after delay                                  ~~
-~~    std::cout << "--- start one shot timer ----" << std::endl;        ~~
-~~    timer.startOnce(1000, func1);                                     ~~
-~~    std::cout << "--- stop one shot timer ----" << std::endl;         ~~
-~~    getchar();                                                        ~~
-~~    return 0;                                                         ~~
-~~}                                                                     ~~
-~~```~~
 
-更新: 20 Dec. 2019  **取消了"抄来的C++实现简易定时器"**, 改用了win32event.  
+更新: 20 Dec. 2019  **取消了"C++实现简易定时器"**, 改用了win32event, 使用"Global\"修饰的事件名可以在多个进程间使用, 方便触发操作. (但也有一个问题也仍未解决: 如果在WaitForSingleObject期间主程序退出, 程序将会留下残余线程无法完全退出. 目前的解决方案是应用启动和退出时多给几次SetEvent, 但发现实际上有时候并不起效, 也就只能等超时之后自己退出了.)  
 
 ## 数据库设计
 
@@ -207,6 +188,8 @@ CREATE INDEX `priority` ON `event` ( `STATUS` DESC );
 ## 应答命令规则设计
 
 更新: 22 Dec. 2019 非常感谢[燕儿](https://github.com/JuYanYan)的帮助, 这一部分将会做成完善的解释器, 部分设计细节也会重构.
+
+-----
 
 后端程序以及人类管理员给酷Q API的命令应该尽可能精简/高可读性/适当容错性/方便在手机上输入.  
 打算按编译原理做一个简单的有限自动机来实现个表达式解释器.  
