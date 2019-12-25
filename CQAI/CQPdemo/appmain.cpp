@@ -241,7 +241,7 @@ CQEVENT(int32_t, __eventExit, 0)() {
 
 	DeleteCriticalSection(&g_csVar);
 
-	return 0;
+	exit(0);
 }
 
 /*
@@ -264,14 +264,27 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		fwrite(buff, 1, strlen(buff), flog);
 		fclose(flog);
 	}
-
-	g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
-	if (g_event == NULL) {
-		pBuff = "触发事件打开失败(" + to_string(GetLastError()) + "). 可能是后台服务程序没有运行.";
-		CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
+	CQ_addLog(ac, CQLOG_INFO, "程序流程", "应用已启动, 准备创建后端通信win32event");
+	try
+	{
+		g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
+		CQ_addLog(ac, CQLOG_DEBUG, "程序流程", "触发事件打开成功, 准备创建更新事件");
 	}
-	//CQupdate_event = CreateEvent(NULL, false, false, Bakend);
-	//AppExit_event = CreateEvent(NULL, false, false, onExit);
+	catch (const std::exception&)
+	{
+		CQ_addLog(ac, CQLOG_ERROR, "运行环境", "触发事件打开失败. 可能是后台服务程序没有运行.");
+	}
+
+	try
+	{
+		CQupdate_event = CreateEvent(NULL, false, false, Bakend);
+		AppExit_event = CreateEvent(NULL, false, false, onExit);
+		CQ_addLog(ac, CQLOG_INFO, "程序流程", "后端通信win32event创建成功");
+	}
+	catch (const std::exception&)
+	{
+		CQ_addLog(ac, CQLOG_ERROR, "运行环境", "触发事件创建失败. 请检查运行环境.");
+	}
 
 	InitializeCriticalSection(&g_csVar);
 
@@ -498,8 +511,6 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	}
 
 	LeaveCriticalSection(&g_csVar);
-
-	respons("on_Enable");
 
 	if (IsCorrectClosedLastTime != true) {
 		enabled = false;
@@ -805,7 +816,7 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 			string sql;
 
 			sql = "INSERT INTO `main`.`event` (`TYPE`, `LINK`, `CONT`, `NOTE`, `STATUS`)"\
-				"VALUES(6002," + to_string(msgId) + ", '" + G2U(grpMsg.substr(0, 128).c_str()) + "', '" + G2U("来自群艾特, 调试阶段统一人工转发") + "', 301); ";
+				"VALUES(6002," + to_string(msgId) + ", '" + G2U(grpMsg.substr(0, 128).c_str()) + "', '" + G2U("来自群艾特, 调试阶段统一人工转发") + "', 300); ";
 
 			rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
 
@@ -1078,10 +1089,10 @@ DWORD WINAPI respWaiter(LPVOID delay_ms) {
 			callFlag = CQ_addLog(ac, CQLOG_DEBUG, "后端控制", "被后端触发或者等待超时");
 			if (callFlag != 0)
 				break;
-			if (waitFlag == WAIT_TIMEOUT && enabled) {
+			if (waitFlag == WAIT_TIMEOUT && enabled == true) {
 				respons(hint.c_str());
 			}
-			else if (waitFlag == WAIT_OBJECT_0 && enabled) {
+			else if (waitFlag == WAIT_OBJECT_0 && enabled == true) {
 				CQ_addLog(ac, CQLOG_INFOSUCCESS, "后端控制", "主动触发(由后端服务)成功");
 				respons("onBackend");
 			}
