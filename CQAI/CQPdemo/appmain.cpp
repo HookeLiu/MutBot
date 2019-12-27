@@ -265,26 +265,16 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		fclose(flog);
 	}
 	CQ_addLog(ac, CQLOG_INFO, "程序流程", "应用已启动, 准备创建后端通信win32event");
-	try
-	{
-		g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
-		CQ_addLog(ac, CQLOG_DEBUG, "程序流程", "触发事件打开成功, 准备创建更新事件");
-	}
-	catch (const std::exception&)
-	{
-		CQ_addLog(ac, CQLOG_ERROR, "运行环境", "触发事件打开失败. 可能是后台服务程序没有运行.");
-	}
+	
 
-	try
-	{
-		CQupdate_event = CreateEvent(NULL, false, false, Bakend);
-		AppExit_event = CreateEvent(NULL, false, false, onExit);
+	g_event = CreateEvent(NULL, false, false, Tigger);
+	CQupdate_event = CreateEvent(NULL, false, false, Bakend);
+	AppExit_event = CreateEvent(NULL, false, false, onExit);
+	if (CQupdate_event != NULL && AppExit_event != NULL && g_event != NULL)
 		CQ_addLog(ac, CQLOG_INFO, "程序流程", "后端通信win32event创建成功");
-	}
-	catch (const std::exception&)
-	{
+	else
 		CQ_addLog(ac, CQLOG_ERROR, "运行环境", "触发事件创建失败. 请检查运行环境.");
-	}
+
 
 	InitializeCriticalSection(&g_csVar);
 
@@ -522,8 +512,18 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	else {
 		ResetEvent(g_event);
 	}
+	
 	time_t respTimerInver = delayTimerInterval_ms;
 	TdHandle[1] = CreateThread(NULL, 0, respWaiter, &respTimerInver, NULL, &ThreadId[1]);
+	if (TdHandle[1] == NULL) {
+		CQ_addLog(ac, CQLOG_FATAL, "运行环境", "后台响应线程创建失败");
+		return -1;
+	}
+	DWORD backendTest = WaitForSingleObject(CQupdate_event, 200);
+	if (backendTest == WAIT_TIMEOUT) {
+		CQ_addLog(ac, CQLOG_WARNING, "运行环境", "后端服务没有响应, 请检查后端程序运行情况, 确保后端已启动.");
+	}
+	CQ_addLog(ac, CQLOG_INFO, "程序流程", "初始化程序完成");
 
 	return 0;
 }
@@ -611,7 +611,6 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 	//如果不回复消息，交由之后的应用/过滤器处理，这里 return EVENT_IGNORE - 忽略本条消息
 
 	string cmd = msg;
-	int32_t id = msgId;
 	
 	if (blackList.find(to_string(fromQQ)) != string::npos)
 		return EVENT_BLOCK;
@@ -710,10 +709,10 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 
 		EnterCriticalSection(&g_csVar);
 
-		if (db) {
+		if (db == nullptr) {
 			rc = sqlite3_open(dbPath.c_str(), &db);
 			pBuff = "数据库连接状态→" + to_string(rc);
-			CQ_addLog(ac, CQLOG_DEBUG, "数据库(私聊记录)", pBuff.c_str());
+			CQ_addLog(ac, CQLOG_DEBUG, "数据库(群艾特记录)", pBuff.c_str());
 		}
 
 		char* obuff = nullptr;
@@ -728,8 +727,7 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 		// 然后存到数据库里让后端程序处理
 		string sql;
 		sql = "INSERT INTO `main`.`event` (`TYPE`, `LINK`, `CONT`, `NOTE`, `STATUS`)"\
-			"VALUES(6001," + to_string(id) + ", '" + G2U( cmd.substr(0, 128).c_str() ) + "', '" + G2U("来自私聊, 调试阶段统一人工转发") + "', 301); ";
-
+			"VALUES(6001," + to_string(msgId) + ", '" + G2U( cmd.substr(0, 128).c_str() ) + "', '" + G2U("来自私聊, 调试阶段统一人工转发") + "', 301); ";
 		rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
 		LeaveCriticalSection(&g_csVar);
 		if (rc == SQLITE_OK) {
