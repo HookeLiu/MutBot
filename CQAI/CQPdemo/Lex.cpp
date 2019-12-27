@@ -95,12 +95,20 @@ struct strType
  对字符串进行匹配, 返回处理完成时的自动机节点位置和字符串
 */
 strType strTypeMatch(std::string str) {
-	std::int8_t typ, i, len;
+	std::int8_t typ, i;
+	std::uint16_t len;
 	std::string subStr = "";
 	std::int8_t state = 0, curState = 0;
 	strType stm;
+	bool overLenthFlag = false;
 
-	len = str.length();
+	if (str.length() < 1000)
+		len = str.length();
+	else {
+		len = 996;
+		overLenthFlag = true;
+	}
+		
 	for (i = 0; i < len; i += 1) {
 		typ = getCharType(str.at(i));
 		if (str.at(i) == '\\') {
@@ -113,6 +121,9 @@ strType strTypeMatch(std::string str) {
 			break;
 		subStr += str.at(i);
 		state = curState;
+	}
+	if (overLenthFlag == true) {
+		subStr += "...";
 	}
 	stm.subStr = subStr;
 	stm.state = state;
@@ -243,7 +254,7 @@ extern CQcmd mainParse(std::string cmd) {
 		if (highType.state == 13) {                 // 13是问号字符串
 			code.status += 1;
 			std::string cont = result_cmd.subStr.substr(1, result_cmd.subStr.length() - 2);
-			char buff[8192];
+			char buff[4096];
 			sprintf_s(buff, cont.c_str());
 			code.content = buff;
 		}
