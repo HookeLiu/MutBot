@@ -52,13 +52,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="com.example.democ.json" />
     <None Include="..\notes\MAIN.md">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\notes\SQLite_C.md">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="app.json" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib" />

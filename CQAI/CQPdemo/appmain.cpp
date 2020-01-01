@@ -22,8 +22,6 @@
 #define Err      -1
 #define Unkown   0
 
-#define delayTimerInterval_ms 60000
-
 #pragma comment(lib,"Winmm.lib")
 
 using namespace std;
@@ -131,8 +129,7 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 
 			if (sta[0] != '0') {    // 这说明上次未按期望的方式退出程序, 可能是酷Q重新加载应用, 为了防止上次残余的线程影响本次运行, 应该先做一些相关处理.
 				IsCorrectClosedLastTime = false;
-				sprintf_s( buff, "检测到上次未按期望的方式退出程序, 这可能会造成一些异常. 虽然程序设计了有限的容错机制, 但仍建议退出酷Q并等待%d秒后再重新启动酷Q", (delayTimerInterval_ms / 1000) );
-				CQ_addLog(ac, CQLOG_WARNING, "运行环境", buff);
+				CQ_addLog(ac, CQLOG_WARNING, "运行环境", "检测到上次未按期望的方式退出程序, 这可能会造成一些异常. 虽然程序设计了有限的容错机制, 但仍建议退出酷Q并等待几秒后再重新启动酷Q");
 			}
 		}
 		fseek(flog, 0, SEEK_SET);
@@ -264,18 +261,24 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		fwrite(buff, 1, strlen(buff), flog);
 		fclose(flog);
 	}
-	CQ_addLog(ac, CQLOG_INFO, "程序流程", "应用已启动, 准备创建后端通信win32event");
+	CQ_addLog(ac, CQLOG_DEBUG, "程序流程", "应用已启动, 准备打开后端通信win32event");
 	
 
-	g_event = CreateEvent(NULL, false, false, Tigger);
-	CQupdate_event = CreateEvent(NULL, false, false, Bakend);
-	AppExit_event = CreateEvent(NULL, false, false, onExit);
+	g_event = OpenEvent(EVENT_ALL_ACCESS, true, Tigger);
+	CQupdate_event = OpenEvent(EVENT_ALL_ACCESS, true, Bakend);
+	AppExit_event = OpenEvent(EVENT_ALL_ACCESS, true, onExit);
 	if (CQupdate_event != NULL && AppExit_event != NULL && g_event != NULL)
-		CQ_addLog(ac, CQLOG_INFO, "程序流程", "后端通信win32event创建成功");
-	else
-		CQ_addLog(ac, CQLOG_ERROR, "运行环境", "触发事件创建失败. 请检查运行环境.");
+		CQ_addLog(ac, CQLOG_INFO, "程序流程", "后端通信win32event打开成功");
+	else {
+		ErrorCounter += 1;
+		CQ_addLog(ac, CQLOG_WARNING, "运行环境", "触发事件打开失败. 请检查运行环境.");
+	}
 
-
+	DWORD backendTest = WaitForSingleObject(CQupdate_event, 300);
+	if (backendTest == WAIT_TIMEOUT) {
+		CQ_addLog(ac, CQLOG_WARNING, "运行环境", "后端服务没有响应, 请检查后端程序运行情况, 确保后端已启动.");
+	}
+		
 	InitializeCriticalSection(&g_csVar);
 
 	char *outbuff = nullptr;
@@ -513,16 +516,12 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 		ResetEvent(g_event);
 	}
 	
-	time_t respTimerInver = delayTimerInterval_ms;
-	TdHandle[1] = CreateThread(NULL, 0, respWaiter, &respTimerInver, NULL, &ThreadId[1]);
+	TdHandle[1] = CreateThread(NULL, 0, respWaiter, NULL, NULL, &ThreadId[1]);
 	if (TdHandle[1] == NULL) {
 		CQ_addLog(ac, CQLOG_FATAL, "运行环境", "后台响应线程创建失败");
 		return -1;
 	}
-	DWORD backendTest = WaitForSingleObject(CQupdate_event, 200);
-	if (backendTest == WAIT_TIMEOUT) {
-		CQ_addLog(ac, CQLOG_WARNING, "运行环境", "后端服务没有响应, 请检查后端程序运行情况, 确保后端已启动.");
-	}
+	
 	CQ_addLog(ac, CQLOG_INFO, "程序流程", "初始化程序完成");
 
 	return 0;
@@ -538,8 +537,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
 
-	if (AppExit_event)
-		SetEvent(AppExit_event);
+	SetEvent(AppExit_event);
 
 	char buff[256];
 	FILE* flog;
@@ -578,8 +576,9 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 		}
 	}
 
+	SetEvent(g_event);
+
 	if (g_event) {
-		SetEvent(g_event);
 		CloseHandle(g_event);
 		g_event = nullptr;
 	}
@@ -795,12 +794,14 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 			char* obuff = nullptr;
 			char buff[256] = { '\0' };
 			int len_buff = 0;
+// debug, 后端做了
+			if (fromGroup != 962362386) {
+				char hint[] = { "来自%I64d在群(%I64d)的艾特(%d):" };
+				sprintf_s(buff, 255, hint, fromQQ, fromGroup, msgId);
 
-			char hint[] = { "来自%I64d在群(%I64d)的艾特(%d):" };
-			sprintf_s(buff, 255, hint, fromQQ, fromGroup, msgId);
-
-			CQ_sendPrivateMsg(ac, AdminQQ, buff);
-
+				CQ_sendPrivateMsg(ac, AdminQQ, buff);
+			}
+			
 			// 然后存到数据库里让后端程序处理
 
 			EnterCriticalSection(&g_csVar);
@@ -824,6 +825,7 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 				char hint[] = { "\nSQL(\n%s\n)执行成功" };
 				len_buff = sql.length() + strlen(hint);
 				obuff = (char*)malloc(len_buff + 8);
+				SetEvent(CQupdate_event);
 				if (obuff) {
 					sprintf_s(obuff, len_buff, hint, sql.c_str());
 					CQ_addLog(ac, CQLOG_DEBUG, "数据库", obuff);
@@ -852,6 +854,11 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 				sqlite3_close(db);
 				db = nullptr;
 			}
+// debug, 后端做了
+			if (fromGroup == 962362386) {
+				return EVENT_IGNORE;
+			}
+				
 
 			CQ_sendPrivateMsg(ac, AdminQQ, grpMsg.c_str());
 			respons("on_GroupMsgAT");
@@ -1031,10 +1038,18 @@ void respons(const char* eve) {
 	if (time(NULL) - Time_lastTrigger > 0) {
 		GtmpCounter += 1;
 
-		if (g_event == NULL) {
-			g_event = OpenEvent(EVENT_ALL_ACCESS, TRUE, Tigger);
-			pBuff = "尝试重新打开触发事件仍然失败(" + to_string(GetLastError()) + "). 请检查后端程序.";
-			CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
+		if (g_event == NULL || CQupdate_event == NULL || AppExit_event == NULL) {
+			g_event = OpenEvent(EVENT_ALL_ACCESS, true, Tigger);
+			CQupdate_event = OpenEvent(EVENT_ALL_ACCESS, true, Bakend);
+			AppExit_event = OpenEvent(EVENT_ALL_ACCESS, true, onExit);
+			if (g_event == NULL || CQupdate_event == NULL || AppExit_event == NULL){
+				pBuff = "尝试重新打开通信事件仍然失败(" + to_string(GetLastError()) + "). 请检查后端程序.";
+				CQ_addLog(ac, CQLOG_ERROR, "运行环境", pBuff.c_str());
+				ErrorCounter += 1;
+			}
+			else {
+				CQ_addLog(ac, CQLOG_INFO, "运行环境", "重新打开通信事件成功");
+			}
 		}
 		if (CQupdate_event)
 			SetEvent(CQupdate_event);
@@ -1063,50 +1078,36 @@ void respons(const char* eve) {
 	Time_lastTrigger = time(NULL);
 }
 
-DWORD WINAPI respWaiter(LPVOID delay_ms) {
-	time_t delayms = *(time_t *)delay_ms;
-	string hint = "on_Timer" + to_string(delayms / 1000) + "s";
+DWORD WINAPI respWaiter(LPVOID p) {
 	DWORD waitFlag = 0;
+	DWORD waitExit = 0;
 	int callFlag = 1 ;
 	char buff[300];
 
-	while (g_event) {
-		if (enabled) {
-
-			if (delayms < 10000 || delayms > 36000000) {
-				SetEvent(g_event);
-				sprintf_s(buff, "响应子线程得到了错误的参数, 响应超时不应该小于10秒或大于1小时, 可实际却得到了参数\"%I64u\". 这可能是使用酷Q重新载入应用而本应用使用了事件等待造成的. 为了程序还能运行, 已将等待超时默认成了60秒, 如需正确使用程序请关闭酷Q并等待60秒再启动.", delayms);
-				CQ_addLog(ac, CQLOG_ERROR, "异常参数", buff);
-				CQ_sendPrivateMsg(ac, AdminQQ, buff);
-				delayms = 60000;
-				hint = "on_Timer60s";
-				ResetEvent(g_event);
-			}
-
-			waitFlag = WaitForSingleObject(g_event, delayms);
-			callFlag = CQ_addLog(ac, CQLOG_DEBUG, "后端控制", "被后端触发或者等待超时");
-			if (callFlag != 0)
+	while (enabled) {
+		waitFlag = WaitForSingleObject(g_event, 500);
+		if (waitFlag == WAIT_TIMEOUT) {
+			waitExit = WaitForSingleObject(AppExit_event, 500);
+			if (waitExit == WAIT_OBJECT_0) {
+				enabled = false;
 				break;
-			if (waitFlag == WAIT_TIMEOUT && enabled == true) {
-				respons(hint.c_str());
 			}
-			else if (waitFlag == WAIT_OBJECT_0 && enabled == true) {
-				CQ_addLog(ac, CQLOG_INFOSUCCESS, "后端控制", "主动触发(由后端服务)成功");
-				respons("onBackend");
-			}
-			else
-				break;
-			callFlag = 1;
+		}
+		else if (waitFlag == WAIT_OBJECT_0 && enabled == true) {
+			CQ_addLog(ac, CQLOG_INFOSUCCESS, "后端控制", "主动触发(由后端服务)成功");
+			respons("onBackend");
 		}
 		else {
 			break;
 		}
+		callFlag = 1;
 	}
 	if (g_event) {
 		ResetEvent(g_event);
 		CloseHandle(g_event);
 		g_event = nullptr;
-	}
+	}	
+
 	return 0;
 }
 
