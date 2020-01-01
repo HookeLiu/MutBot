@@ -27,9 +27,6 @@
     <ClInclude Include="appmain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="timer.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="lex.h">
       <Filter>Header Files</Filter>
     </ClInclude>

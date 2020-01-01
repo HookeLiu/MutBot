@@ -176,15 +176,6 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 CQEVENT(int32_t, __eventExit, 0)() {
 	enabled = false;
 
-	if (AppExit_event)
-		SetEvent(AppExit_event);
-
-	SetEvent(g_event);
-	if (g_event)
-		SetEvent(g_event);
-	if (g_event)
-		SetEvent(g_event);
-
 	char buff[256];
 	FILE* flog;
 	time_t curTime = time(NULL);
@@ -222,19 +213,8 @@ CQEVENT(int32_t, __eventExit, 0)() {
 		}
 	}
 
-	if (g_event)
-		SetEvent(g_event);
-	if (g_event)
-		SetEvent(g_event);
-	
-	if (CQupdate_event) {
-		CloseHandle(CQupdate_event);
-		CQupdate_event = nullptr;
-	}
-	if (AppExit_event) {
-		CloseHandle(AppExit_event);
-		AppExit_event = nullptr;
-	}
+	if (AppExit_event)
+		SetEvent(AppExit_event);
 
 	DeleteCriticalSection(&g_csVar);
 
@@ -267,17 +247,21 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	g_event = OpenEvent(EVENT_ALL_ACCESS, true, Tigger);
 	CQupdate_event = OpenEvent(EVENT_ALL_ACCESS, true, Bakend);
 	AppExit_event = OpenEvent(EVENT_ALL_ACCESS, true, onExit);
-	if (CQupdate_event != NULL && AppExit_event != NULL && g_event != NULL)
-		CQ_addLog(ac, CQLOG_INFO, "程序流程", "后端通信win32event打开成功");
+	if (CQupdate_event != NULL && AppExit_event != NULL && g_event != NULL) {
+		CQ_addLog(ac, CQLOG_INFO, "程序流程", "后端通信win32event打开成功. 尝试握手...");
+		SetEvent(CQupdate_event);
+		if (WaitForSingleObject(g_event, 200) == WAIT_OBJECT_0) {
+			CQ_addLog(ac, CQLOG_DEBUG, "运行环境", "后端应用握手成功");
+		}
+		else {
+			CQ_addLog(ac, CQLOG_WARNING, "运行环境", "后端服务没有响应, 请检查后端程序运行情况, 确保后端已启动.");
+		}
+	}
 	else {
 		ErrorCounter += 1;
 		CQ_addLog(ac, CQLOG_WARNING, "运行环境", "触发事件打开失败. 请检查运行环境.");
 	}
 
-	DWORD backendTest = WaitForSingleObject(CQupdate_event, 300);
-	if (backendTest == WAIT_TIMEOUT) {
-		CQ_addLog(ac, CQLOG_WARNING, "运行环境", "后端服务没有响应, 请检查后端程序运行情况, 确保后端已启动.");
-	}
 		
 	InitializeCriticalSection(&g_csVar);
 
@@ -537,29 +521,27 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
 
-	SetEvent(AppExit_event);
-
 	char buff[256];
 	FILE* flog;
 	time_t curTime = time(NULL);
 
 	rc = sqlite3_open(dbPath.c_str(), &db);
 	pBuff = "数据库(" + dbPath + ")连接状态→" + to_string(rc);
-	CQ_addLog(ac, CQLOG_DEBUG, "退出记录", pBuff.c_str());
+	CQ_addLog(ac, CQLOG_DEBUG, "酷Q退出记录", pBuff.c_str());
 
 	string sql;
-	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`) VALUES(1004, '本次运行共触发了 " + to_string(GtmpCounter) + " 次', 'APP_on_disable', 200); ";
+	sql = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`) VALUES(1004, '本次运行共触发了 " + to_string(GtmpCounter) + " 次', 'CQ_on_EXIT', 200); ";
 	rc = sqlite3_exec(db, G2U(sql.c_str()), NULL, NULL, &zErrMsg);
 	if (rc != SQLITE_OK) {
 		sprintf_s(buff, "因为%s,\nSQL(\n%s\n)执行失败", zErrMsg, sql.c_str());
-		CQ_addLog(ac, CQLOG_ERROR, "APP退出记录", buff);
+		CQ_addLog(ac, CQLOG_ERROR, "退出记录", buff);
 		sqlite3_free(zErrMsg);
 	}
 
 	pBuff = APPpath + "status.log";
 	fopen_s(&flog, pBuff.c_str(), "w");
 	if (flog) {
-		sprintf_s(buff, "2 %I64d", curTime);
+		sprintf_s(buff, "4 %I64d", curTime);
 		fwrite(buff, 1, strlen(buff), flog);
 		fclose(flog);
 	}
@@ -576,20 +558,8 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 		}
 	}
 
-	SetEvent(g_event);
-
-	if (g_event) {
-		CloseHandle(g_event);
-		g_event = nullptr;
-	}
-	if (CQupdate_event) {
-		CloseHandle(CQupdate_event);
-		CQupdate_event = nullptr;
-	}
-	if (AppExit_event) {
-		CloseHandle(AppExit_event);
-		AppExit_event = nullptr;
-	}
+	if (AppExit_event)
+		SetEvent(AppExit_event);
 
 	DeleteCriticalSection(&g_csVar);
 
@@ -1051,17 +1021,16 @@ void respons(const char* eve) {
 				CQ_addLog(ac, CQLOG_INFO, "运行环境", "重新打开通信事件成功");
 			}
 		}
-		if (CQupdate_event)
-			SetEvent(CQupdate_event);
 
 		char buff[128];
 		int tmp = -1;
 
 		if (eve != "onBackend") {
+			if (CQupdate_event)
+				SetEvent(CQupdate_event);
 			sprintf_s(buff, "被动触发(%s)成功", eve);
 			CQ_addLog(ac, CQLOG_DEBUG, "后台处理", buff);
 		}
-			
 		TdHandle[0] = CreateThread(NULL, 0, polling, NULL, NULL, &ThreadId[0]);
 	}
 	else{
@@ -1081,16 +1050,17 @@ void respons(const char* eve) {
 DWORD WINAPI respWaiter(LPVOID p) {
 	DWORD waitFlag = 0;
 	DWORD waitExit = 0;
-	int callFlag = 1 ;
-	char buff[300];
 
 	while (enabled) {
 		waitFlag = WaitForSingleObject(g_event, 500);
 		if (waitFlag == WAIT_TIMEOUT) {
-			waitExit = WaitForSingleObject(AppExit_event, 500);
+			waitExit = WaitForSingleObject(AppExit_event, 100);
 			if (waitExit == WAIT_OBJECT_0) {
 				enabled = false;
 				break;
+			}
+			else {
+				continue;
 			}
 		}
 		else if (waitFlag == WAIT_OBJECT_0 && enabled == true) {
@@ -1100,14 +1070,7 @@ DWORD WINAPI respWaiter(LPVOID p) {
 		else {
 			break;
 		}
-		callFlag = 1;
 	}
-	if (g_event) {
-		ResetEvent(g_event);
-		CloseHandle(g_event);
-		g_event = nullptr;
-	}	
-
 	return 0;
 }
 
@@ -1145,7 +1108,7 @@ DWORD WINAPI polling(LPVOID p) {
 		CQ_addLog(ac, CQLOG_DEBUG, "命令处理", "找到后端命令, 开始处理");
 		status = cmdExec( U2G( (char*)sqlite3_column_text(stmt, 1) ) );
 		if (status > OK) {
-			sprintf_s(buff, "UPDATE `event` SET `STATUS` = 0 , `note` = '%s exec successed(%d)' WHERE `EID` = %d", (char*)sqlite3_column_text(stmt, 1), status, sqlite3_column_int(stmt, 0));
+			sprintf_s(buff, "UPDATE `event` SET `STATUS` = 0 , `note` = 'exec successed(%d): %s' WHERE `EID` = %d", status, (char*)sqlite3_column_text(stmt, 1), sqlite3_column_int(stmt, 0));
 			rc = sqlite3_exec(db, buff, NULL, NULL, &zErrMsg);
 			if (rc != SQLITE_OK) {
 				sprintf_s(buff, "后端命令执行成功, 但数据库更新失败(%d):%s", rc, zErrMsg);
@@ -1157,7 +1120,7 @@ DWORD WINAPI polling(LPVOID p) {
 
 		}
 		else{
-			sprintf_s(buff, "UPDATE `event` SET `STATUS` = 500 , `note` = '%s exec failed(%d)' WHERE `EID` = %d", (char*)sqlite3_column_text(stmt, 1), status, sqlite3_column_int(stmt, 0));
+			sprintf_s(buff, "UPDATE `event` SET `STATUS` = 500 , `note` = 'exec failed(%d): %s' WHERE `EID` = %d", status, (char*)sqlite3_column_text(stmt, 1), sqlite3_column_int(stmt, 0));
 			rc = sqlite3_exec(db, buff, NULL, NULL, &zErrMsg);
 			if (rc != SQLITE_OK) {
 				sprintf_s(buff, "后端命令执行失败, 且据库更新失败(%d):%s", rc, zErrMsg);

@@ -22,7 +22,6 @@
 #include "sqlite3.h"
 #include <regex>
 #include <thread>
-#include "timer.hpp"
 #include "lex.h"
 #include "dbStruct.h"
 #include <atlbase.h>
