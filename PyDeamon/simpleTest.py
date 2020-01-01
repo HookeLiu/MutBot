@@ -1,6 +1,8 @@
 # 只是一个随意的示例...
 import time
 
+AdminQQ = "2154055060" # 打算做成用配置文件的, 以后再说吧...
+
 词库 = {
     "名词":{
             "人名":["龙狼", "狗狗"],
@@ -16,7 +18,7 @@ import time
     "龙狼去蹲坑了", "龙狼蹲坑回来了", "龙狼去厕所了", "龙狼在蹲坑吗"
 ]
 
-def 应用选择器(Curs_APP, Curs_CQ, STATUS, LINK, EID, CONT):
+def 简单应答器(Curs_APP, Curs_CQ, STATUS, LINK, EID, CONT):
     cmd = ""
     if LINK > 0:
         query_oriGrp = "SELECT `group` FROM `main`.`event` WHERE `id` = " + str(LINK) + ";"
@@ -32,24 +34,30 @@ def 应用选择器(Curs_APP, Curs_CQ, STATUS, LINK, EID, CONT):
         Curs_APP.execute(query_update)
 
     if STATUS == 302:
+        query_update = "UPDATE `main`.`event` SET `NOTE`= '没做, 暂时先直接标记为已处理吧...', `STATUS` = 0 WHERE `EID` = " + str(EID) + ";"
+        Curs_APP.execute(query_update)
         pass # 暂时没条件做那么多了, 先放着咕咕咕...
     if STATUS == 301:
+        query_update = "UPDATE `main`.`event` SET `NOTE`= '没做, 暂时先直接标记为已处理吧...', `STATUS` = 0 WHERE `EID` = " + str(EID) + ";"
+        Curs_APP.execute(query_update)
         pass
     if STATUS == 300:
-        if CONT.find("龙狼蹲坑去了") > 0:
+        if oriMSG.find("龙狼蹲坑去了") > -1:
             cmd = 蹲坑计时(0, oriGrp)
             query_insert = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `STATUS`) VALUES (5234, '龙狼去蹲坑了', 266);"
             Curs_APP.execute(query_insert)
-            Coon_APP.commit()
-            return cmd
-        if CONT.find("龙狼蹲坑回来了") > 0:
+            query_update = "UPDATE `main`.`event` SET `NOTE`= '已处理', `STATUS` = 0 WHERE `EID` = " + str(EID) + ";"
+            Curs_APP.execute(query_update)
+        if oriMSG.find("龙狼蹲坑回来了") > -1:
             query_select = "SELECT `EID`, `TIME`, `CONT`, `STATUS` FROM `main`.`event` WHERE `STATUS` = 266 AND `CONT` = '龙狼去蹲坑了' ;"
             curs = Curs_APP.execute(query_select)
             recordTime = curs.fetchone()[1]
             tmp_timeArray = time.strptime(recordTime, "%Y-%m-%d %H:%M:%S")
-            recordTimeStamp = int(time.mktime(timeArray)) + 8 * 3600
+            recordTimeStamp = int(time.mktime(tmp_timeArray)) + 8 * 3600
             duration = time.time() - recordTimeStamp;
             cmd = 蹲坑计时(duration, oriGrp)
+            query_update = "UPDATE `main`.`event` SET `NOTE`= '已处理', `STATUS` = 0 AND `CONT` = '龙狼去蹲坑了';"
+            Curs_APP.execute(query_update)
         pass
     if len(cmd) > 1:
         return cmd
@@ -62,5 +70,5 @@ def 蹲坑计时(dur, oriGrp):
     if dur < 1:
         cmd = "send grp to %s ?开始计时, 现在时间是 %s ?" % ( oriGrp, time.strftime("%H:%M:%S", time.localtime())  )
     else :
-        cmd = "send grp to %s ?计时结束, 蹲了 %s 秒?" % ( oriGrp, sta )
+        cmd = "send grp to %s ?计时结束, 蹲了 %s 秒?" % ( oriGrp, dur )
     return cmd

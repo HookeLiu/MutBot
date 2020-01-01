@@ -10,8 +10,8 @@ os.system("title 中间层服务")
 
 import logging
 logFile = "./debug.log"
-logFormat =  logging.Formatter('[%(levelname)s] | %(asctime)s @%(relativeCreated)d | "%(filename)s", line %(lineno)d, in `%(threadName)s` : %(message)s', '%d %b %Y %H:%M:%S')
-printFormat = logging.Formatter('%(asctime)s : %(message)s')
+logFormat =  logging.Formatter('[%(levelname)8s] | %(asctime)s @%(relativeCreated)8d | "%(filename)15s" line%(lineno)4d, in `%(threadName)10s` : %(message)s', '%d %b %Y %H:%M:%S')
+printFormat = logging.Formatter('[%(levelname)8s] | %(asctime)s : %(message)s')
 fh = logging.FileHandler(logFile)
 fh.setFormatter(logFormat)
 ch = logging.StreamHandler() 
@@ -55,8 +55,6 @@ win32event.ResetEvent(CQexit)
 win32event.ResetEvent(CQupdate)
 win32event.ResetEvent(CQTigger)
 
-win32event.SetEvent(CQupdate) # 程序启动后给前端一个反馈以便前端判断后端状态
-
 # 因为目前的设计是整个框架都使用数据库传递和记录数据, 所以这个中间层程序需要打开两个数据库: 前端app的db和酷Q自己的eventv2.db
 # 不确定主程序和这个脚本在不在同一个目录, 又想要让各个模块间独立性尽可能强, 所以就搞成找文件的了... 也许这里以后得重新设计...
 Time_start = time.time()
@@ -90,10 +88,13 @@ def Gexit():
     global Flag_exit
     waitFlag = 233
     while waitFlag != win32event.WAIT_OBJECT_0: 
-        waitFlag = win32event.WaitForSingleObject( CQexit, 60000 ) # 虽然需要它一直等待, 但设置超时能防止无法退出, 超时了再重新等待就好了
+        waitFlag = win32event.WaitForSingleObject( CQexit, 1000 ) # 虽然需要它一直等待, 但设置超时能防止无法退出, 超时了再重新等待就好了
         if waitFlag == win32event.WAIT_OBJECT_0 :
             logger1.info("收到退出信号, 程序准备结束并退出")
             Flag_exit = True
+            CQTigger.Close()
+            CQupdate.Close()
+            CQexit.Close()
             pass # 这里放程序退出逻辑
     return 0
 
@@ -107,9 +108,9 @@ def Update():
             logger1.info("收到更新信号, 开始后台处理...")
             try:
                 Conn_APP = sqlite3.connect(PATH_DB[-1])
-                Coon_CQ  = sqlite3.connect(PATH_DB[-2])
+                Conn_CQ  = sqlite3.connect(PATH_DB[-2])
                 Curs_APP = Conn_APP.cursor()
-                Curs_CQ  = Coon_CQ.cursor()
+                Curs_CQ  = Conn_CQ.cursor()
             except OperationalError :
                 logger1.error("数据库打开失败")
                 logger1.info("**********程序退出************")
@@ -118,7 +119,7 @@ def Update():
                 logger1.error("数据库游标创建失败")
                 logger1.info("**********程序退出************")
                 sys.exit(-233)
-            tasks = getNewTasks(Curs_CQ)
+            tasks = getNewTasks(Curs_APP)
             if tasks == 0:
                 return
             else :
@@ -126,23 +127,24 @@ def Update():
                 count_cmd = 0
                 for EID, LINK, CONT, STATUS in tasks:
                     logger1.debug("任务的事件ID→%s; 对应链接→%s; 内容→%s; 状态号→%s" %(EID, LINK, CONT, STATUS) )
-                    cmd = simpleTest.应用选择器(Curs_APP, Curs_CQ, STATUS, LINK, EID, CONT)
+                    cmd = simpleTest.简单应答器(Curs_APP, Curs_CQ, STATUS, LINK, EID, CONT)
+                    # 打算后端应用组做好之后这里再加一些调用机制什么的. 比如根据配置通过线程的方式运行某个后端程序, 这个后端程序有着自己独立的数据库/数据处理机制, 去分析和处理酷Q自身的日志再返回命令, 中间层将应用返回的命令插入前端的数据库并通知前端处理.
                     if cmd != None:
                         query_insert = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `STATUS`) VALUES (5233, '" + cmd + "', 233);"
                         Curs_APP.execute(query_insert)
-                        logger1.debug("中间层返回了命令→%s" %(cmd) )
+                        logger1.debug("应用返回了命令→%s" %(cmd) )
                         count_cmd += 1
                 pass # 这里写要做的处理
             logger1.info("任务处理结束, 继续睡觉...")
-            Coon_APP.commit()
+            Conn_APP.commit()
             if count_cmd > 0:
                 logger1.debug("置CQTigger通知前端取命令...")
                 win32event.SetEvent(CQTigger)
             Curs_APP = None
             Conn_APP.close()
-            Coon_CQ.commit()
+            Conn_CQ.commit()
             Curs_CQ = None
-            Coon_CQ.close()
+            Conn_CQ.close()
             win32event.ResetEvent(CQupdate)
     return
 
@@ -154,11 +156,15 @@ def getNewTasks(Curs_APP):
     if rows > 0 :
         return reslut
     return 0
-     
-logger1.debug("为了方便通知前端后端程序在线, 先睡30秒")
-time.sleep(30)
-win32event.ResetEvent(CQupdate)
-logger1.debug("开始创建退出检测线程和任务处理线程")
+   
+logger1.debug("为了方便通知前端后端程序在线, 先等待前端60秒")
+waitFlag = win32event.WaitForSingleObject( CQupdate, 60000 )
+if waitFlag == win32event.WAIT_OBJECT_0 :
+    logger1.debug("得到前端信号, 反馈在线")
+    win32event.SetEvent(CQTigger)
+if waitFlag == win32event.WAIT_TIMEOUT :
+    logger1.warning("等待前端超时, 请检查前端是否正常运行")
+logger1.info("开始创建退出检测线程和任务处理线程")
 Thread_waitForExit = threading.Thread(target = Gexit, args = ())
 Thread_waitForTigg = threading.Thread(target = Update, args = ())
 
