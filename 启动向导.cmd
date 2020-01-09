@@ -32,5 +32,5 @@ exit
 :ErrToexit
 echo   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 echo 那么再检查一下运行环境重试吧...现在开始执行退出命令...
-python -c "import win32event; CQexit = win32event.CreateEvent(None, False, False, 'Global\\CQexit'); win32event.SetEvent(CQexit); win32event.SetEvent(CQexit);"
+python -c "import win32event; import win32api; CQexit = win32event.CreateEvent(None, False, False, 'Global\\CQexit'); CQTigger  = win32event.CreateEvent(None, False, False, 'Global\\CQdbSync' ); CQupdate  = win32event.CreateEvent(None, False, False, 'Global\\CQupdate' ); win32event.SetEvent(CQexit); win32event.SetEvent(CQexit); win32api.CloseHandle(CQupdate); win32api.CloseHandle(CQTigger); win32api.CloseHandle(CQexit); "
 TIMEOUT /T 10

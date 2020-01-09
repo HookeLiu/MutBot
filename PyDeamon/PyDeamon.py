@@ -5,6 +5,7 @@ import sys
 import time, datetime
 import threading
 import sqlite3
+import ctypes
 
 os.system("title 中间层服务")
 
@@ -16,7 +17,7 @@ fh = logging.FileHandler(logFile)
 fh.setFormatter(logFormat)
 ch = logging.StreamHandler() 
 ch.setFormatter(printFormat)
-# ch.setLevel(logging.INFO)
+# ch.setLevel(logging.INFO) # 开发中为了方便查看先不用info等级了
 ch.setLevel(logging.DEBUG)
 
 logger0 = logging.getLogger("all") # 根记录器把所有内容记录到文件
@@ -87,15 +88,42 @@ logger1.debug( "找到了%d个db文件, 取最后两个( %s, %s ), 耗时%.3f秒
 def Gexit():
     global Flag_exit
     waitFlag = 233
+    exitConfirm = "u"
+
+    def 一个能作为线程的改变量函数(要改的变量, 提示语):
+        当前所有变量 = globals().copy()
+        变量id表 = {}
+        for 变量名, 变量值 in 当前所有变量.items():
+            变量id表[id(变量值)] = 变量名
+        待改的变量的原名 = 变量id表[id(要改的变量)]
+        新的内容 = str(input(提示语))
+        if len(新的内容) > 0 :
+            globals()[待改的变量的原名] = 新的内容
+
     while waitFlag != win32event.WAIT_OBJECT_0: 
         waitFlag = win32event.WaitForSingleObject( CQexit, 1000 ) # 虽然需要它一直等待, 但设置超时能防止无法退出, 超时了再重新等待就好了
         if waitFlag == win32event.WAIT_OBJECT_0 :
-            logger1.info("收到退出信号, 程序准备结束并退出")
-            Flag_exit = True
-            CQTigger.Close()
-            CQupdate.Close()
-            CQexit.Close()
-            pass # 这里放程序退出逻辑
+            logger1.info("收到退出信号, 等待退出确认...")
+            waitForConirm = threading.Thread(target = 一个能作为线程的改变量函数, args = (exitConfirm, "收到了退出信号, 默认30秒后退出, 是否现在退出呢? (Y/n) 请输入: "), name = "waitForInput")
+            waitForConirm.start()
+            time.sleep(30)
+            if exitConfirm == "u":
+                logger1.warn("等待超时, 开始退出流程...")
+                exitConfirm = "Ytt"
+            if exitConfirm == "Ytt" or exitConfirm == "Y":
+                if exitConfirm == "Y":
+                    logger1.info("确认退出, 开始退出流程...")
+                Flag_exit = True
+                CQTigger.Close()
+                CQupdate.Close()
+                CQexit.Close()
+                pass # 这里放程序退出逻辑
+            elif exitConfirm == "n":
+                win32event.ResetEvent(CQexit)
+                continue
+            else:
+                waitFlag = win32event.WAIT_OBJECT_0
+                continue
     return 0
 
 # 酷Q发出更新信号时说明有需要立即处理的事件, 中间层需要做预处理或移交给后端
@@ -130,8 +158,8 @@ def Update():
                     cmd = simpleTest.简单应答器(Curs_APP, Curs_CQ, STATUS, LINK, EID, CONT)
                     # 打算后端应用组做好之后这里再加一些调用机制什么的. 比如根据配置通过线程的方式运行某个后端程序, 这个后端程序有着自己独立的数据库/数据处理机制, 去分析和处理酷Q自身的日志再返回命令, 中间层将应用返回的命令插入前端的数据库并通知前端处理.
                     if cmd != None:
-                        query_insert = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `STATUS`) VALUES (5233, '" + cmd + "', 233);"
-                        Curs_APP.execute(query_insert)
+                        query_insert = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `STATUS`) VALUES (5233, ?, 233);"
+                        Curs_APP.execute(query_insert, cmd)
                         logger1.debug("应用返回了命令→%s" %(cmd) )
                         count_cmd += 1
                 pass # 这里写要做的处理
@@ -157,19 +185,23 @@ def getNewTasks(Curs_APP):
         return reslut
     return 0
    
-logger1.debug("为了方便通知前端后端程序在线, 先等待前端60秒")
-waitFlag = win32event.WaitForSingleObject( CQupdate, 60000 )
+logger1.debug("为了方便通知前端后端程序在线, 先等待前端一会(默认120秒超时)")
+waitFlag = win32event.WaitForSingleObject( CQupdate, 120000 )
 if waitFlag == win32event.WAIT_OBJECT_0 :
     logger1.debug("得到前端信号, 反馈在线")
     win32event.SetEvent(CQTigger)
 if waitFlag == win32event.WAIT_TIMEOUT :
-    logger1.warning("等待前端超时, 请检查前端是否正常运行")
-logger1.info("开始创建退出检测线程和任务处理线程")
+    logger1.error("等待超时, 请确保前端正确运行")
+    logger1.info("**********程序退出************")
+    sys.exit(-233)
+logger1.info("创建后台处理线程(退出检测和任务处理)...")
 Thread_waitForExit = threading.Thread(target = Gexit, args = ())
 Thread_waitForTigg = threading.Thread(target = Update, args = ())
 
 Thread_waitForExit.start()
 Thread_waitForTigg.start()
+
+logger1.info("后台处理线程已启动")
 
 Thread_waitForTigg.join()
 Thread_waitForExit.join()

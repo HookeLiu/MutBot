@@ -95,6 +95,8 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 */
 CQEVENT(int32_t, __eventStartup, 0)() {
 
+	double time_start = clock(); // 测试用
+
 	APPpath = CQ_getAppDirectory(ac);
 
 	FILE* flog;
@@ -164,6 +166,10 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 		db = nullptr;
 	}
 
+	double time_end = clock(); // 测试用
+	double dur_startup = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	sprintf_s(buff, "启动耗时→%.3f秒", dur_startup);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 	return 0;
 }
 
@@ -174,6 +180,8 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 * 本函数调用完毕后，酷Q将很快关闭，请不要再通过线程等方式执行其他代码。
 */
 CQEVENT(int32_t, __eventExit, 0)() {
+	double time_start = clock(); // 测试用
+
 	enabled = false;
 
 	char buff[256];
@@ -208,15 +216,26 @@ CQEVENT(int32_t, __eventExit, 0)() {
 
 	for (int tmp = 0; tmp < THREAD_NUM; tmp++) {
 		if (TdHandle[tmp]) {
+			fopen_s(&flog, "debug.log", "a"); // 调试用
+			if (flog) {
+				sprintf_s(buff, "[debug] %I64d | closing Thread %p (on CQ_exit)\n", curTime, TdHandle[tmp]);
+				fwrite(buff, 1, strlen(buff), flog);
+				fclose(flog);
+			}
 			CloseHandle(TdHandle[tmp]);
 			TdHandle[tmp] = nullptr;
 		}
 	}
 
-	if (AppExit_event)
-		SetEvent(AppExit_event);
+	SetEvent(AppExit_event);
 
-	DeleteCriticalSection(&g_csVar);
+	if(&g_csVar)
+		DeleteCriticalSection(&g_csVar);
+
+	double time_end = clock(); // 测试用
+	double dur_exit = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	sprintf_s(buff, "退出(酷Q)耗时→%.3f秒", dur_exit);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 
 	exit(0);
 }
@@ -228,6 +247,8 @@ CQEVENT(int32_t, __eventExit, 0)() {
 * 如非必要，不建议在这里加载窗口。（可以添加菜单，让用户手动打开窗口）
 */
 CQEVENT(int32_t, __eventEnable, 0)() {
+	double time_start = clock(); // 测试用
+
 	enabled = true;
 	//g_event = CreateEvent(NULL, false, false, Tigger);
 
@@ -488,17 +509,6 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	}
 
 	LeaveCriticalSection(&g_csVar);
-
-	if (IsCorrectClosedLastTime != true) {
-		enabled = false;
-		SetEvent(g_event);
-		CQ_addLog(ac, CQLOG_DEBUG, "容错操作", "不确定是否有上次关闭时残余的事件等待, 强制清除.");
-		ResetEvent(g_event);
-		enabled = true;
-	}
-	else {
-		ResetEvent(g_event);
-	}
 	
 	TdHandle[1] = CreateThread(NULL, 0, respWaiter, NULL, NULL, &ThreadId[1]);
 	if (TdHandle[1] == NULL) {
@@ -507,6 +517,11 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	}
 	
 	CQ_addLog(ac, CQLOG_INFO, "程序流程", "初始化程序完成");
+
+	double time_end = clock(); // 测试用
+	double dur_init = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	sprintf_s(buff, "初始化耗时→%.3f秒", dur_init);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 
 	return 0;
 }
@@ -519,6 +534,8 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 * 无论本应用是否被启用，酷Q关闭前本函数都*不会*被调用。
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
+	double time_start = clock(); // 测试用
+
 	enabled = false;
 
 	char buff[256];
@@ -553,15 +570,26 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 
 	for (int tmp = 0; tmp < THREAD_NUM; tmp++) {
 		if (TdHandle[tmp]) {
+			fopen_s(&flog, "debug.log", "a"); // 调试用
+			if (flog) {
+				sprintf_s(buff, "[debug] %I64d | closing Thread %p (on APP_disable)\n", curTime, TdHandle[tmp]);
+				fwrite(buff, 1, strlen(buff), flog);
+				fclose(flog);
+			}
 			CloseHandle(TdHandle[tmp]);
 			TdHandle[tmp] = nullptr;
 		}
 	}
 
-	if (AppExit_event)
-		SetEvent(AppExit_event);
+	SetEvent(AppExit_event);
 
-	DeleteCriticalSection(&g_csVar);
+	if (&g_csVar)
+		DeleteCriticalSection(&g_csVar);
+
+	double time_end = clock(); // 测试用
+	double dur_disable = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	sprintf_s(buff, "退出(应用)耗时→%.3f秒", dur_disable);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 
 	return 0;
 }
@@ -578,6 +606,8 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 
 	//如果要回复消息，请调用酷Q方法发送，并且这里 return EVENT_BLOCK - 截断本条消息，不再继续处理  注意：应用优先级设置为"最高"(10000)时，不得使用本返回值
 	//如果不回复消息，交由之后的应用/过滤器处理，这里 return EVENT_IGNORE - 忽略本条消息
+
+	double time_start = clock(); // 测试用
 
 	string cmd = msg;
 	
@@ -733,8 +763,13 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 		}
 		CQ_sendPrivateMsg(ac, AdminQQ, cmd.c_str());
 	}
-
 	respons("on_PrivateMsg");
+
+	double time_end = clock(); // 测试用
+	double dur_msgproc = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	char buff[128];
+	sprintf_s(buff, "私聊消息处理耗时→%.3f秒", dur_msgproc);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 
 	return EVENT_IGNORE;
 }
@@ -744,6 +779,8 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 * Type=2 群消息
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
+
+	double time_start = clock(); // 测试用
 
 	GroupCounter += 1;
 
@@ -834,6 +871,12 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 			respons("on_GroupMsgAT");
 		}
 	}
+
+	double time_end = clock(); // 测试用
+	double dur_grpproc = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	char buff[128];
+	sprintf_s(buff, "群消息处理耗时→%.3f秒", dur_grpproc);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 
 	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
 }
@@ -1005,6 +1048,7 @@ CQEVENT(int32_t, __menuB, 0)() {
 }
 
 void respons(const char* eve) {
+		double time_start = clock(); // 测试用
 	if (time(NULL) - Time_lastTrigger > 0) {
 		GtmpCounter += 1;
 
@@ -1045,17 +1089,46 @@ void respons(const char* eve) {
 		ErrorCounter = 0;
 	}
 	Time_lastTrigger = time(NULL);
+
+	double time_end = clock(); // 测试用
+	double dur_respons = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	char buff[128];
+	sprintf_s(buff, "应答程序耗时→%.3f秒", dur_respons);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 }
 
 DWORD WINAPI respWaiter(LPVOID p) {
+
+	double time_start = clock(); // 测试用
 	DWORD waitFlag = 0;
 	DWORD waitExit = 0;
+	char buff[256];
+	FILE* flog;
+	time_t curTime;
+	void * selfthid = TdHandle[1];
+	fopen_s(&flog, "debug.log", "a");
+	if (flog) {
+		curTime = time(NULL);
+		sprintf_s(buff, "[debug] %I64d | start Thread \"respWaiter\"(%p)\n", curTime, selfthid);
+		fwrite(buff, 1, strlen(buff), flog);
+		fclose(flog);
+	}
 
 	while (enabled) {
-		waitFlag = WaitForSingleObject(g_event, 500);
+		waitFlag = WaitForSingleObject(g_event, 200);
 		if (waitFlag == WAIT_TIMEOUT) {
-			waitExit = WaitForSingleObject(AppExit_event, 100);
+			waitExit = WaitForSingleObject(AppExit_event, 50);
 			if (waitExit == WAIT_OBJECT_0) {
+				if (enabled == true) {
+					CQ_addLog(ac, CQLOG_WARNING, "异常操作", "退出事件被触发, disable...");
+					fopen_s(&flog, "debug.log", "a");
+					if (flog) {
+						curTime = time(NULL);
+						sprintf_s(buff, "[debug] %I64d | recive STOP-SIGNAL while enable = %u \n", curTime, enabled);
+						fwrite(buff, 1, strlen(buff), flog);
+						fclose(flog);
+					}
+				}
 				enabled = false;
 				break;
 			}
@@ -1071,12 +1144,46 @@ DWORD WINAPI respWaiter(LPVOID p) {
 			break;
 		}
 	}
+	double time_end = clock(); // 测试用
+	double dur_waiter = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	sprintf_s(buff, "服务通信线程运行时长→%.3f秒", dur_waiter);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
+	fopen_s(&flog, "debug.log", "a");
+	if (flog) {
+		curTime = time(NULL);
+		sprintf_s(buff, "[debug] %I64d | ended Thread \"respWaiter\"(%p)\n", curTime, selfthid);
+		fwrite(buff, 1, strlen(buff), flog);
+		fclose(flog);
+	}
+	if (enabled != false) {
+		fopen_s(&flog, "debug.log", "a");
+		if (flog) {
+			curTime = time(NULL);
+			sprintf_s(buff, "[debug] %I64d | case `enabled` != false, trying to re-initialize. calling CQ's function \"APP_Enable\"... \n", curTime);
+			fwrite(buff, 1, strlen(buff), flog);
+			fclose(flog);
+		}
+		int flag = -233222333;
+		flag = __eventEnable();
+		if (flag != -233222333) {
+			fopen_s(&flog, "debug.log", "a");
+			if (flog) {
+				curTime = time(NULL);
+				sprintf_s(buff, "[debug] %I64d | re-initialize done(%d)\n", curTime, flag);
+				fwrite(buff, 1, strlen(buff), flog);
+				fclose(flog);
+			}
+		}
+	}
+	
 	return 0;
 }
 
 DWORD WINAPI polling(LPVOID p) {
 	// 这里打算定时轮训数据库, 查找并处理后端程序的指令
 	// 查询数据库里后端程序给的指令(状态码233)并解释执行, 如果成功则把状态码改为0, 否则改为500
+
+	double time_start = clock(); // 测试用
 
 	EnterCriticalSection(&g_csVar);
 
@@ -1144,6 +1251,12 @@ DWORD WINAPI polling(LPVOID p) {
 	sqlite3_close(db);
 	db = nullptr;
 	CloseHandle(TdHandle[0]);
+
+	double time_end = clock(); // 测试用
+	double dur_polling = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	sprintf_s(buff, "处理耗时→%.3f秒", dur_polling);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
+
 	return 0;
 }
 
@@ -1152,6 +1265,9 @@ DWORD WINAPI polling(LPVOID p) {
 */
 
 static int cmdExec(const char * strCmd) {
+
+	double time_start = clock(); // 测试用
+
 	CQcmd cmd;
 	string command;
 	command = strCmd;
@@ -1271,6 +1387,13 @@ static int cmdExec(const char * strCmd) {
 	default:
 		break;
 	}
+
+	double time_end = clock(); // 测试用
+	double dur_parase = (double)((time_end - time_start) / CLOCKS_PER_SEC);
+	char buff[128];
+	sprintf_s(buff, "命令解析耗时→%.3f秒", dur_parase);
+	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
+
 	return Unkown;
 }
 
