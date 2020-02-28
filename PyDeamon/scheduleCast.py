@@ -97,6 +97,7 @@ class Schedule:
             self.time_nowStamp = int(time.time())
             if time.localtime()[-2] != time.localtime(Schedule.env_today['lastUpdate'])[-2]:  # 这说明跨天了, 就得更新环境信息. 其中, 索引-2是"tm_yday"
                 Schedule.env_today['dayType'] = getDayType(time.time())
+                Schedule.env_today['lastUpdate'] = time.time()
             for sch in Schedule.sQueue.items():
                 if len(sch[1]) < 3:  # 说明这个任务被删了
                     continue
