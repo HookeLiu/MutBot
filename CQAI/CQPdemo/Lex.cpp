@@ -106,12 +106,12 @@ strType strTypeMatch(std::string str) {
 		len = str.length();
 	else {
 		len = 996;
+		str = str.substr(0, 990);
 		overLenthFlag = true;
 	}
-		
 	for (i = 0; i < len; i += 1) {
 		typ = getCharType(str.at(i));
-		if (str.at(i) == '\\') {
+		if (str.at(i) == '\\') {  // 跳过转义符
 			i += 1;
 			subStr += '\\';
 			typ = getCharType(str.at(i));
@@ -247,7 +247,7 @@ extern CQcmd mainParse(std::string cmd) {
 					code.action = std::stol(result_cmd.subStr);
 			}
 			else if (code.cmdID == 4) {
-				code.action = std::stol(result_cmd.subStr);
+				code.action = std::stoll(result_cmd.subStr);
 			}
 		}
 

@@ -14,14 +14,25 @@
 
 
 // TODO: reference additional headers your program requires here
-#include "stdint.h"
+//#include "stdint.h"
 #include "string"
 
-#include <iostream>
-#include <ctime>
+//#include <iostream>
 #include "sqlite3.h"
 #include <regex>
 #include <thread>
 #include "lex.h"
 #include "dbStruct.h"
 #include <atlbase.h>
+#include "Window.h"
+#include "enccov.h"
+#include <stdlib.h>
+#include <assert.h>
+
+#include <tchar.h>
+
+// C 运行时头文件
+#include <stdlib.h>
+#include <malloc.h>
+#include <memory.h>
+#include <tchar.h>

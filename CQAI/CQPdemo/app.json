@@ -4,11 +4,11 @@
 {
     "ret":1,					// 返回码，固定为1
     "apiver":9,					// Api版本，本SDK为9
-    "name":"酷Q样例应用(VC)",	// 应用名称
-    "version":"1.0.0",			// 应用版本
+    "name":"AI测试",        	// 应用名称
+    "version":"0.0.1",			// 应用版本
     "version_id":1,				// 应用顺序版本（每次发布时至少+1）
-    "author":"Example",			// 应用作者
-    "description":"酷Q样例应用(V9应用机制)",
+    "author":"佚之狗",			// 应用作者
+    "description":"打算先做一个基本的消息记录预处理, 作为日后AI的训练数据源",
     "event":[					// 事件列表，同一事件类型可重复定义（发布前请删除无用事件）
         {
             "id":1,							// 事件ID
@@ -104,12 +104,16 @@
     ],
     "menu":[		// 设置菜单（发布前请删除无用菜单，如果无需设置菜单请全部删除）
         {
-            "name":"设置A",			//菜单名称
-            "function":"_menuA"		//菜单对应函数
+            "name":"重新查找后端窗口",			//菜单名称
+            "function":"_reFindBG"		        //菜单对应函数
         },
         {
-            "name":"设置B",
-            "function":"_menuB"
+            "name":"检查通信窗口",
+            "function":"_cheakWindow"
+        },
+        {
+            "name":"手动触发",
+            "function":"_manualSync"
         }
     ],
     "status":[		// 悬浮窗状态（见 com.example.status 样例）
