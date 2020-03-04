@@ -28,8 +28,10 @@
 #include "enccov.h"
 #include <stdlib.h>
 #include <assert.h>
-
+#include <io.h>
 #include <tchar.h>
+#include <shellapi.h>
+#include <direct.h>
 
 // C 运行时头文件
 #include <stdlib.h>

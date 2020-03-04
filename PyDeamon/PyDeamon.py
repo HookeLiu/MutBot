@@ -49,7 +49,10 @@ Time_G_Start = time.time()
 Time_LastCommu = time.time()
 Time_LastError = -1
 Status_Hint = "正在初始化..."
-
+if len(sys.argv) > 1:
+    pwd = os.path.abspath(sys.argv[1])
+else:
+    pwd = '../../data'
 
 def printc(self, style='color:#40ef3f;'):
     if type(self) == str:
@@ -303,7 +306,8 @@ logger1.debug("开始查找数据库")
 # 因为目前的设计是整个框架都使用数据库传递和记录数据, 所以这个中间层程序需要打开两个数据库: 前端app的db和酷Q自己的eventv2.db
 # 不确定主程序和这个脚本在不在同一个目录, 又想要让各个模块间独立性尽可能强, 所以就搞成找文件的了... 也许这里以后得重新设计...
 Time_start = time.time()
-Path_scriptDir = os.path.abspath('../../data')
+Path_scriptDir = os.path.abspath(pwd)
+logger1.debug("查找路径 → %s" % Path_scriptDir)
 DB_CQ = "eventv2.db"
 DB_APP = "app.db"
 count_files = 0
@@ -320,6 +324,7 @@ for path, folder, files in os.walk(Path_scriptDir):
 if count_files < 2:
     logger1.critical("找不到数据库! 请确保运行环境正常. 如果是初次使用, 请尝试先用前端创建数据表.")
     logger1.info("**********程序退出************")
+    os.system("pause")
     sys.exit(-233)
 
 logger1.debug(
@@ -454,7 +459,7 @@ def waitForStart():
             G_CommuCounter += 1
             Time_LastCommu =time.time()
             Time_G_Start = time.time()
-            time.sleep(2)
+            time.sleep(3.5)
             break
         time.sleep(1e-3)
     if WPA == HandSk or WPA == Breath:
@@ -480,20 +485,22 @@ def scheduleCallback():
     G_CommuCounter += 1
     Time_LastCommu = time.time()
     MWnd.s_signal_out.setChecked(True)
-    MWnd.displayTimer.start(300)
 
 
 # TODO: 在这加入后端应用的调用过程
 schedules = scheduleCast.Schedule(callBack=scheduleCallback, printer=printc, file=PATH_DB)
-schedules.add("everyWorkingHours:090000", target="1837107998", content="整点偷揉~")
+schedules.add("everyWorkingHours:090030", target="1837107998", content="整点偷揉~")
 _tmp_MSGstr = "亲爱的群友们早上好呀~ 今天是农历|_|, 又是充满希望的一天呢~"
 schedules.add("everyWorkingdayTime:063030", "ChineseCalendar.getLunar_today()", target="483537882", msgType="grp", content=_tmp_MSGstr)
 del _tmp_MSGstr
+schedules.add("everyWorkend:083030", target="483537882", msgType="grp", content="亲爱的群友们周末快乐呀~")
+schedules.add("everyWorkend:193030", target="483537882", msgType="grp", content="亲爱的群友们晚上好呀~ 大家今天都做了些啥呢? 分享分享呗~")
 schedules.start()
 
 rc = app.exec_()
 scheduleCast.Schedule.G_RUN = False
 logger1.info("**********程序退出************")
+os.system("pause")
 sys.exit(rc)
 
 

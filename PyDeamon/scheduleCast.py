@@ -188,7 +188,7 @@ class Schedule:
                 Schedule.sQueue[self.id] = [_tmp_triggerEvent, _tmp_triggerTime, _tmp_CQcmd, args, sikp, count, callBack]
                 self.printer("第%d个计划`%s:%s→*%s*`添加成功" % (self.id, _tmp_triggerEvent, _tmp_triggerTime, _tmp_CQcmd))
             else:
-                self.printer("!!!Warning: %s不在预设事件中. 跳过...")
+                self.printer("!!!Warning: %s不在预设事件中. 跳过..." % _tmp_triggerEvent)
         del _tmp_existFlag
         del _tmp_CQcmd
         del _tmp_triggerEvent

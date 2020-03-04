@@ -112,15 +112,24 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 * 如非必要，不建议在这里加载窗口。（可以添加菜单，让用户手动打开窗口）
 */
 CQEVENT(int32_t, __eventStartup, 0)() {
-
 	/*
 	* 初始化一些全局参数比如path等.
 	* 一些简单的日志以便调试.
 	*/
-	CQ_addLog(ac, CQLOG_INFO, "------", "--------------");
+
+	CQ_addLog(ac, CQLOG_INFO, "酷Q启动", "--------------");
 	double time_start = clock(); // 测试用
 	APPpath = CQ_getAppDirectory(ac);
 	dbPath = APPpath + "app.db";
+
+	char* _tmpBuff = (char*)malloc(APPpath.length() * 2);
+	_tmpBuff = acpToUTF8(dbPath.c_str());                  // sqlite3不支持GB2312, 如果不转成utf-8则不能处理非ASCII的目录名
+	if (dbPath.find(_tmpBuff) == string::npos) {
+		CQ_addLog(ac, CQLOG_WARNING, "运行环境", "检测到运行在非英文目录, 这是不建议的.");
+		dbPath = _tmpBuff;
+	}
+	dbPath = _tmpBuff;
+	freeString(_tmpBuff);
 
 	FILE* flog;
 	char buff[256];
@@ -214,21 +223,16 @@ CQEVENT(int32_t, __eventExit, 0)() {
 	t = "0 %I64d";
 	fileLog(typ_sLog, t);
 
-	if (db) {
+	if (db != nullptr) {
 		sqlite3_free(zErrMsg);
 		sqlite3_close(db);
 		db = nullptr;
 	}
 
-	PostMessage(Pywd, WM_USER, AppExit, 0x1024);
-	PostMessage(CQwd, WM_USER, AppExit, 0x1024);
+	if (Pywd != nullptr)
+		PostMessage(Pywd, WM_USER, AppExit, 0x1024);
 
 	if (&g_csVar) DeleteCriticalSection(&g_csVar);
-
-	if (CQwd != nullptr) {
-		SendMessage(CQwd, WM_DESTROY, 0, 0);
-		DestroyWindow(CQwd);
-	}
 
 	double time_end = clock(); // 测试用
 	double dur_exit = (double)((time_end - time_start) / CLOCKS_PER_SEC);
@@ -238,6 +242,11 @@ CQEVENT(int32_t, __eventExit, 0)() {
 
 	freeString(buff);
 
+	if (CQwd != nullptr) {
+		PostMessage(CQwd, WM_USER, AppExit, 0x1024);
+		PostMessage(CQwd, WM_DESTROY, AppExit, 0x1024);
+	}
+		
 	return 0;
 }
 
@@ -255,6 +264,11 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	double time_start = clock(); // 测试用
 	enabled = true;
 
+	InitializeCriticalSection(&g_csVar);
+
+	int dbIscorrect = dbCheck();
+	if (dbIscorrect != OK) dbInit();
+
 	pBuff = "3 %I64d";
 	fileLog(typ_sLog, pBuff);
 	CQ_addLog(ac, CQLOG_INFO, "程序流程", "初始化开始. 正在创建通信窗口...");
@@ -265,6 +279,48 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	char buff[256];
 	sprintf_s(buff, "窗口创建成功:  窗口句柄 ==> 0x%p; 窗口标题 == > %ws", CQwd, title);
 	CQ_addLog(ac, CQLOG_INFOSUCCESS, "窗口程序", buff);
+
+	if (((_access(".\\MutBot\\PyDeamon\\PyDeamon.py", 0)) != -1) && ((_access("C:\\Windows\\py.exe", 0)) != -1)) {  // 尝试启动中间层服务程序
+		CQ_addLog(ac, CQLOG_INFO, "运行环境", "发现中间层程序, 尝试启动...");
+		char buf1[256];
+		char para[512];
+		char debug[512];
+		strcpy_s(para, ".\\MutBot\\PyDeamon\\PyDeamon.py \"");
+		if (_getcwd(buf1, sizeof(buf1)) == NULL);
+		strcat_s(para, buf1);
+		strcat_s(para, "\\data\"");
+		
+		wchar_t* cmd = (wchar_t*)malloc(strlen(para) * 2);
+		cmd = acpToUTF16(para);
+
+		wchar_t* path = (wchar_t*)malloc(strlen(buf1) * 2);
+		path = acpToUTF16(buf1);
+
+		sprintf_s(debug, "尝试调用`ShellExecute(0x%p, 'open', 'C:\\Windows\\py.exe', '%s', '%s', SW_SHOWMINNOACTIVE);`", CQwd, para, buf1);
+		CQ_addLog(ac, CQLOG_DEBUG, "程序流程", debug);
+
+		HINSTANCE hNewExe = ShellExecute(
+			CQwd,  // 父窗口句柄或出错时显示错误父窗口的句柄
+			L"open",
+			L"C:\\Windows\\py.exe",
+			cmd,                 // 可执行程序的参数, 没有可设为NULL
+			path,                // 默认目录
+			SW_SHOWMINIMIZED
+		);
+
+		char buff[512];
+		if ((DWORD)hNewExe <= 32) {
+			sprintf_s(buff, "中间层程序启动失败: %d", GetLastError());
+			CQ_addLog(ac, CQLOG_WARNING, "运行环境", buff);
+		}
+		else {
+			sprintf_s(buff, "中间层启动成功( %ld ). 等待窗口创建(先睡3秒)...", hNewExe);
+			CQ_addLog(ac, CQLOG_DEBUG, "运行环境", buff);
+			Sleep(3000);
+		}
+		freeString(cmd);
+		freeString(path);
+	}
 
 	CQ_addLog(ac, CQLOG_DEBUG, "程序流程", "应用已启动, 准备寻找后端窗口...");
 
@@ -284,15 +340,8 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	sprintf_s(buff, "`breath`: Handle ==> 0x%p (%ld); Id ==> 0x%ld (%ld)", TdHandle[1], (ULONG)TdHandle[1], ThreadId[1], ThreadId[1]);
 	CQ_addLog(ac, CQLOG_DEBUG, "线程创建", buff);
 
-	InitializeCriticalSection(&g_csVar);
-
-	int dbIscorrect = dbCheck();
-	if (dbIscorrect != OK) dbInit();
-
 	string sql = "INSERT INTO `main`.`event` (`TYPE`, `NOTE`, `STATUS`) VALUES(1003, 'app_on_Enable', 200); ";
 	fileLog(typ_db, sql);
-
-	CQwd = createMainWindow(WndProc);
 
 	CQ_addLog(ac, CQLOG_INFO, "程序流程", "初始化程序完成");
 
@@ -321,24 +370,20 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 	string t;
 	t = "INSERT INTO `main`.`event` (`TYPE`, `CONT`, `NOTE`, `STATUS`) VALUES(1002, '本次运行共触发了 " + to_string(GtmpCounter) + " 次', 'CQ_on_disable', 200); ";
 	fileLog(typ_db, t);
-	t = "4 %I64d";
+	t = "0 %I64d";
 	fileLog(typ_sLog, t);
 
-	if (db) {
+	if (db != nullptr) {
 		sqlite3_free(zErrMsg);
 		sqlite3_close(db);
 		db = nullptr;
 	}
 
-	PostMessage(Pywd, WM_USER, AppExit, 0x1024);
-	PostMessage(CQwd, WM_USER, AppExit, 0x1024);
+	if (Pywd != nullptr)
+		PostMessage(Pywd, WM_USER, AppExit, 0x1024);
 
 	if (&g_csVar) DeleteCriticalSection(&g_csVar);
 
-	if (CQwd != nullptr) {
-		SendMessage(CQwd, WM_DESTROY, 0, 0);
-		DestroyWindow(CQwd);
-	}
 
 	double time_end = clock(); // 测试用
 	double dur_disable = (double)((time_end - time_start) / CLOCKS_PER_SEC);
@@ -346,6 +391,10 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 	sprintf_s(buff, "停用耗时→%.3f秒", dur_disable);
 	CQ_addLog(ac, CQLOG_DEBUG, "运行时长", buff);
 	CQ_addLog(ac, CQLOG_INFO, "******", "**************");
+
+	if (CQwd != nullptr) {
+		PostMessage(CQwd, WM_USER, AppExit, 0x1024);
+	}
 
 	//pBuff = "函数`__eventDisable`(handle" + to_string(__threadhandle()) + " -- threadid" + to_string(__threadid()) + ") 结束";
 	//MessageBoxA(NULL, pBuff.c_str(), "debug", 0);  // debug
@@ -363,9 +412,9 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 
 		// 主要的应答回复是由后端生成的, 这里只针对私聊和群艾特这样高优先级的事件做一些转发和指令处理.
 	if (enabled) {
+		if (blackList.find(to_string(fromQQ)) != string::npos) return EVENT_BLOCK;
 		double time_start = clock(); // 测试用
 		string cmd = msg;
-		if (blackList.find(to_string(fromQQ)) != string::npos) return EVENT_BLOCK;
 
 		if (fromQQ == AdminQQ) {
 			if (cmd.find("命令模式") != string::npos) {
@@ -385,6 +434,7 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 					CQ_sendPrivateMsg(ac, fromQQ, "已进入命令模式");
 					return EVENT_BLOCK;
 				}
+				return EVENT_BLOCK;
 			}
 
 			if (DEVflag == 233) {
@@ -881,7 +931,7 @@ int cmdExec(const char* strCmd) {
 		smatch result;
 		regex_search(command, result, parm1);
 		strcpy_s(cmdContent, command.length(), result.str(1).c_str());
-		MessageBoxA(NULL, result.str(1).c_str(), "正则匹配结果", 0);  // debug
+		//debug MessageBoxA(NULL, result.str(1).c_str(), "正则匹配结果", 0);  // debug
 	}
 	else {
 		strcpy_s(cmdContent, command.length(), "Err");
@@ -1083,7 +1133,7 @@ int dbCheck() {
 	EnterCriticalSection(&g_csVar);
 	rc = sqlite3_open(dbPath.c_str(), &db);
 	pBuff = "数据库(" + dbPath + ")连接状态→" + to_string(rc);
-	CQ_addLog(ac, CQLOG_DEBUG, "数据库", pBuff.c_str());
+	CQ_addLog(ac, CQLOG_DEBUG, "数据库自检", pBuff.c_str());
 
 	if (rc == SQLITE_OK) {
 		// 得先检查一下数据库是不是正确的, 不是的话就有可能是第一次使用, 就还得初始化一下
@@ -1146,7 +1196,7 @@ int dbInit() {
 	CQ_addLog(ac, CQLOG_DEBUG, "数据库", pBuff.c_str());
 
 	if (rc == SQLITE_OK) {
-		CQ_addLog(ac, CQLOG_INFO, "数据库", "开始建表...");
+		CQ_addLog(ac, CQLOG_INFO, "数据库初始化", "开始建表...");
 		sqlite3_stmt* stmt1 = nullptr;
 		// 开启一个用于初始化的事务
 		rc = sqlite3_prepare_v2(db, SQL_begin, -1, &stmt1, NULL);
@@ -1309,19 +1359,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				if (LPA == 0x11) {
 					CQ_addLog(ac, CQLOG_INFOSUCCESS, "运行环境", "后端应用握手成功");
 				}
-				else {
-					ErrorCounter += 1;
-					CQ_addLog(ac, CQLOG_WARNING, "运行环境", "后端服务没有响应, 请检查后端程序运行情况, 确保后端运行正常.");
-				}
 			}
+			break;
 		case AppExit:
-			PostQuitMessage(0);
+			SendMessage(CQwd, WM_CLOSE, 0, 0);
+			break;
 		default:
 			break;
 		}
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		DestroyWindow(CQwd);
 		break;
 	default:
 		return DefWindowProc(hWnd, msg, wParam, lParam);
