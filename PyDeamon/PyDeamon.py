@@ -324,7 +324,7 @@ for path, folder, files in os.walk(Path_scriptDir):
 if count_files < 2:
     logger1.critical("找不到数据库! 请确保运行环境正常. 如果是初次使用, 请尝试先用前端创建数据表.")
     logger1.info("**********程序退出************")
-    os.system("pause")
+    os.system("TIMEOUT /T 10")
     sys.exit(-233)
 
 logger1.debug(
@@ -500,7 +500,7 @@ schedules.start()
 rc = app.exec_()
 scheduleCast.Schedule.G_RUN = False
 logger1.info("**********程序退出************")
-os.system("pause")
+os.system("TIMEOUT /T 10")
 sys.exit(rc)
 
 
